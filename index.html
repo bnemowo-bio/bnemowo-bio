@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: #0f1117;
+    color: #e8e6ff;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  h1 {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    font-size: 2rem;
+    background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 20px;
+  }
+
+  .container {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .card {
+    background: #1a1d27;
+    border: 1px solid #2a2d3e;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 10px;
+  }
+
+  .players-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .player-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: #12141f;
+    border: 1px solid #2a2d3e;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .player-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-me { background: #a78bfa; box-shadow: 0 0 6px #a78bfa88; }
+  .dot-other { background: #60a5fa; box-shadow: 0 0 6px #60a5fa88; }
+
+  .role-tag {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .role-asker { background: #1e1433; color: #a78bfa; border: 1px solid #3d2a72; }
+  .role-guesser { background: #0e1e33; color: #60a5fa; border: 1px solid #1a3a6e; }
+
+  .chain-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .chain-word {
+    background: #12141f;
+    border: 1px solid #2a2d3e;
+    border-radius: 20px;
+    padding: 5px 13px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #d1d5db;
+    position: relative;
+  }
+
+  .chain-word.latest {
+    border-color: #a78bfa;
+    color: #c4b5fd;
+    background: #1a1433;
+  }
+
+  .chain-arrow {
+    color: #374151;
+    font-size: 14px;
+  }
+
+  .current-prompt {
+    background: #131a2e;
+    border: 1px solid #1e3a5f;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+
+  .prompt-label {
+    font-size: 11px;
+    color: #60a5fa;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .prompt-word {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #93c5fd;
+    letter-spacing: 1px;
+  }
+
+  .prompt-hint {
+    font-size: 12px;
+    color: #4b5563;
+    margin-top: 4px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    background: #12141f;
+    border: 1.5px solid #2a2d3e;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 15px;
+    color: #e8e6ff;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus {
+    border-color: #a78bfa;
+  }
+
+  input[type="text"]::placeholder { color: #374151; }
+
+  input[type="text"]:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  button {
+    background: linear-gradient(135deg, #7c3aed, #3b82f6);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    color: white;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  button:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+  button:active:not(:disabled) { transform: translateY(0); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-approve {
+    background: linear-gradient(135deg, #059669, #10b981);
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .btn-reject {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .btn-secondary {
+    background: #1a1d27;
+    border: 1px solid #2a2d3e;
+    color: #9ca3af;
+    font-size: 13px;
+    padding: 8px 14px;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: #22253a;
+    transform: none;
+  }
+
+  .status-bar {
+    background: #12141f;
+    border: 1px solid #2a2d3e;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+  }
+
+  .status-bar.pending { border-color: #d97706; color: #fbbf24; background: #1c1600; }
+  .status-bar.success { border-color: #059669; color: #34d399; background: #001a0e; }
+  .status-bar.error { border-color: #dc2626; color: #f87171; background: #1a0000; }
+  .status-bar.info { border-color: #3b82f6; color: #93c5fd; background: #001228; }
+
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .approval-box {
+    background: #1c1400;
+    border: 1px solid #d97706;
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+
+  .approval-word {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fbbf24;
+    margin-bottom: 10px;
+  }
+
+  .approval-sub {
+    font-size: 12px;
+    color: #92400e;
+    margin-bottom: 12px;
+  }
+
+  .approval-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  .log-item {
+    font-size: 12px;
+    color: #6b7280;
+    padding: 3px 0;
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+
+  .log-item .log-who { font-weight: 600; color: #9ca3af; min-width: 70px; }
+  .log-item .log-word { color: #c4b5fd; }
+  .log-item .log-badge {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  .badge-ok { background: #0a2e1a; color: #34d399; }
+  .badge-no { background: #2e0a0a; color: #f87171; }
+
+  .join-form { display: flex; flex-direction: column; gap: 12px; }
+
+  .empty-chain { color: #374151; font-size: 13px; font-style: italic; }
+
+  .score-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .score-card {
+    background: #12141f;
+    border: 1px solid #2a2d3e;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 12px;
+    text-align: center;
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .score-num {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #a78bfa;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .score-lbl { color: #4b5563; font-size: 11px; }
+
+  .notice {
+    text-align: center;
+    font-size: 13px;
+    color: #4b5563;
+    padding: 10px 0;
+  }
+
+  .turn-indicator {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+
+  .turn-mine { background: #1e1433; color: #a78bfa; }
+  .turn-other { background: #0e1e33; color: #60a5fa; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🔗 Nối Từ</h1>
+  <p class="subtitle">Wuyen beo siu mup siu cute:^hihi</p>
+  <div id="app"></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'noitu_gamestate_v2';
+const POLL_MS = 1500;
+
+let myName = '';
+let myId = '';
+let pollTimer = null;
+
+function genId() {
+  return Math.random().toString(36).slice(2, 8);
+}
+
+function nowStr() {
+  return new Date().toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+async function loadState() {
+  try {
+    const r = await window.storage.get(STORAGE_KEY, true);
+    return r ? JSON.parse(r.value) : null;
+  } catch { return null; }
+}
+
+async function saveState(s) {
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(s), true);
+  } catch(e) { console.error(e); }
+}
+
+function defaultState() {
+  return {
+    players: [],
+    chain: [],
+    pendingWord: null,
+    pendingFrom: null,
+    status: 'waiting',
+    turn: 0,
+    log: [],
+    lastActivity: Date.now(),
+    currentWord: '',
+    askerIndex: 0
+  };
+}
+
+function getAsker(state) {
+  if (!state.players.length) return null;
+  return state.players[state.askerIndex % state.players.length];
+}
+
+function getGuesser(state) {
+  if (state.players.length < 2) return null;
+  return state.players[(state.askerIndex + 1) % state.players.length];
+}
+
+function getLastChar(word) {
+  return word.trim().split(' ').pop().charAt(0).toLowerCase();
+}
+
+function getFirstChar(word) {
+  return word.trim().charAt(0).toLowerCase();
+}
+
+async function joinGame(name) {
+  let state = await loadState() || defaultState();
+  myId = genId();
+  myName = name;
+
+  const existing = state.players.findIndex(p => p.name === name);
+  if (existing >= 0) {
+    state.players[existing].id = myId;
+    state.players[existing].online = Date.now();
+  } else {
+    state.players.push({ id: myId, name, online: Date.now(), score: 0 });
+  }
+  state.lastActivity = Date.now();
+  await saveState(state);
+  startPolling();
+  render(state);
+}
+
+async function resetGame() {
+  let state = await loadState() || defaultState();
+  const players = state.players.map(p => ({...p, score: 0}));
+  const fresh = defaultState();
+  fresh.players = players;
+  fresh.lastActivity = Date.now();
+  await saveState(fresh);
+}
+
+async function submitWord(word) {
+  let state = await loadState() || defaultState();
+  const asker = getAsker(state);
+  if (!asker || asker.id !== myId) return;
+
+  if (state.chain.length > 0) {
+    const last = state.chain[state.chain.length - 1];
+    const needed = getLastChar(last);
+    const given = getFirstChar(word);
+    if (needed !== given) {
+      setLocalStatus(`⚠ Từ phải bắt đầu bằng chữ "${needed.toUpperCase()}"!`, 'error');
+      return;
+    }
+  }
+
+  if (state.chain.includes(word.toLowerCase())) {
+    setLocalStatus('⚠ Từ này đã được dùng rồi!', 'error');
+    return;
+  }
+
+  state.currentWord = word.trim().toLowerCase();
+  state.lastActivity = Date.now();
+  await saveState(state);
+}
+
+async function submitAnswer(word) {
+  let state = await loadState() || defaultState();
+  const guesser = getGuesser(state);
+  if (!guesser || guesser.id !== myId) return;
+
+  if (!state.currentWord) return;
+
+  const needed = getLastChar(state.currentWord);
+  const given = getFirstChar(word);
+  if (needed !== given) {
+    setLocalStatus(`⚠ Từ phải bắt đầu bằng chữ "${needed.toUpperCase()}"!`, 'error');
+    return;
+  }
+
+  if (state.chain.includes(word.toLowerCase())) {
+    setLocalStatus('⚠ Từ này đã được dùng rồi!', 'error');
+    return;
+  }
+
+  state.pendingWord = word.trim().toLowerCase();
+  state.pendingFrom = myId;
+  state.lastActivity = Date.now();
+  await saveState(state);
+}
+
+async function approveWord(approved) {
+  let state = await loadState() || defaultState();
+  const asker = getAsker(state);
+  if (!asker || asker.id !== myId) return;
+
+  const word = state.pendingWord;
+  if (!word) return;
+
+  const guesser = getGuesser(state);
+
+  if (approved) {
+    state.chain.push(state.currentWord);
+    state.chain.push(word);
+    if (guesser) guesser.score = (guesser.score || 0) + 1;
+    state.log.unshift({ word, by: guesser ? guesser.name : '?', ok: true, time: nowStr() });
+    state.askerIndex = (state.askerIndex + 1) % state.players.length;
+    state.currentWord = '';
+    state.pendingWord = null;
+    state.pendingFrom = null;
+  } else {
+    state.log.unshift({ word, by: guesser ? guesser.name : '?', ok: false, time: nowStr() });
+    state.pendingWord = null;
+    state.pendingFrom = null;
+  }
+
+  if (state.log.length > 30) state.log = state.log.slice(0, 30);
+  state.lastActivity = Date.now();
+  await saveState(state);
+}
+
+let localStatus = null;
+function setLocalStatus(msg, type) {
+  localStatus = { msg, type };
+  setTimeout(() => { localStatus = null; renderFromStorage(); }, 3000);
+}
+
+async function renderFromStorage() {
+  const state = await loadState() || defaultState();
+  render(state);
+}
+
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(renderFromStorage, POLL_MS);
+}
+
+function render(state) {
+  const app = document.getElementById('app');
+  if (!myId) {
+    app.innerHTML = renderJoin();
+    return;
+  }
+
+  const asker = getAsker(state);
+  const guesser = getGuesser(state);
+  const isAsker = asker && asker.id === myId;
+  const isGuesser = guesser && guesser.id === myId;
+  const iAmInGame = state.players.some(p => p.id === myId);
+  const waitingForPartner = state.players.length < 2;
+
+  let html = '';
+
+  html += `<div class="card">`;
+  html += `<div class="section-label">Người chơi</div>`;
+  html += `<div class="players-row">`;
+  for (const p of state.players) {
+    const isMe = p.id === myId;
+    const isAskerP = asker && asker.id === p.id;
+    html += `<div class="player-badge">
+      <div class="player-dot ${isMe ? 'dot-me' : 'dot-other'}"></div>
+      <span>${p.name}${isMe ? ' (bạn)' : ''}</span>
+      <span class="role-tag ${isAskerP ? 'role-asker' : 'role-guesser'}">${isAskerP ? '🎯 Hỏi' : '✏️ Đáp'}</span>
+    </div>`;
+  }
+  if (waitingForPartner) {
+    html += `<span style="font-size:12px;color:#4b5563;font-style:italic">Chờ bạn bè tham gia...</span>`;
+  }
+  html += `</div></div>`;
+
+  if (!waitingForPartner) {
+    html += `<div class="card">`;
+    html += `<div class="section-label">Chuỗi từ</div>`;
+    if (state.chain.length === 0) {
+      html += `<div class="chain-display"><span class="empty-chain">Chưa có từ nào...</span></div>`;
+    } else {
+      html += `<div class="chain-display">`;
+      for (let i = 0; i < state.chain.length; i++) {
+        if (i > 0) html += `<span class="chain-arrow">→</span>`;
+        const isLast = i === state.chain.length - 1;
+        html += `<span class="chain-word ${isLast ? 'latest' : ''}">${state.chain[i]}</span>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (!waitingForPartner) {
+    html += `<div class="card">`;
+
+    if (!state.currentWord && isAsker) {
+      html += `<div class="section-label">Lượt của bạn — Nhập từ để thách</div>`;
+      html += `<div class="input-row">
+        <input type="text" id="wordInput" placeholder="${state.chain.length > 0 ? 'Từ bắt đầu bằng ' + getLastChar(state.chain[state.chain.length-1]).toUpperCase() : 'Nhập từ đầu tiên...'}" />
+        <button onclick="handleSubmitWord()">Đưa từ →</button>
+      </div>`;
+      if (state.chain.length > 0) {
+        html += `<div style="font-size:12px;color:#4b5563;margin-top:8px">Từ trước kết thúc bằng "<b style="color:#a78bfa">${getLastChar(state.chain[state.chain.length-1]).toUpperCase()}</b>", bạn cũng cần bắt đầu bằng chữ đó</div>`;
+      }
+    } else if (!state.currentWord && !isAsker) {
+      html += `<div class="status-bar info"><span>⏳ Đang chờ ${asker ? asker.name : '...'} đưa ra từ...</span></div>`;
+    } else if (state.currentWord && !state.pendingWord) {
+      if (isGuesser) {
+        html += `<div class="current-prompt">
+          <div class="prompt-label">Từ cần nối</div>
+          <div class="prompt-word">${state.currentWord.toUpperCase()}</div>
+          <div class="prompt-hint">Hãy nối tiếp bằng từ bắt đầu bằng "${getLastChar(state.currentWord).toUpperCase()}"</div>
+        </div>`;
+        html += `<div class="input-row">
+          <input type="text" id="ansInput" placeholder="Từ bắt đầu bằng ${getLastChar(state.currentWord).toUpperCase()}..." />
+          <button onclick="handleSubmitAnswer()">Gửi →</button>
+        </div>`;
+      } else if (isAsker) {
+        html += `<div class="current-prompt">
+          <div class="prompt-label">Bạn đã đưa từ</div>
+          <div class="prompt-word">${state.currentWord.toUpperCase()}</div>
+          <div class="prompt-hint">Chờ ${guesser ? guesser.name : '...'} trả lời...</div>
+        </div>`;
+        html += `<div class="status-bar"><div class="spinner"></div><span>Đang chờ trả lời...</span></div>`;
+      }
+    } else if (state.pendingWord) {
+      if (isAsker) {
+        html += `<div class="approval-box">
+          <div style="font-size:12px;color:#92400e;margin-bottom:4px">Từ được gửi</div>
+          <div class="approval-word">${state.currentWord.toUpperCase()} → ${state.pendingWord.toUpperCase()}</div>
+          <div class="approval-sub">Bạn có đồng ý từ "<b>${state.pendingWord}</b>" hợp lệ không?</div>
+          <div class="approval-actions">
+            <button class="btn-approve" onclick="handleApprove(true)">✓ Đồng ý</button>
+            <button class="btn-reject" onclick="handleApprove(false)">✗ Không hợp lệ</button>
+          </div>
+        </div>`;
+      } else {
+        html += `<div class="status-bar pending"><div class="spinner"></div><span>Đang chờ ${asker ? asker.name : '...'} duyệt từ "<b>${state.pendingWord}</b>"...</span></div>`;
+      }
+    }
+
+    if (localStatus) {
+      html += `<div class="status-bar ${localStatus.type}" style="margin-top:10px">${localStatus.msg}</div>`;
+    }
+
+    html += `</div>`;
+
+    html += `<div class="card">`;
+    html += `<div class="section-label">Điểm số</div>`;
+    html += `<div class="score-row">`;
+    for (const p of state.players) {
+      html += `<div class="score-card">
+        <div class="score-num">${p.score || 0}</div>
+        <div class="score-lbl">${p.name}</div>
+      </div>`;
+    }
+    html += `</div></div>`;
+
+    if (state.log.length > 0) {
+      html += `<div class="card">`;
+      html += `<div class="section-label">Lịch sử</div>`;
+      html += `<div class="log-list">`;
+      for (const l of state.log) {
+        html += `<div class="log-item">
+          <span class="log-who">${l.by}</span>
+          <span class="log-word">${l.word}</span>
+          <span class="log-badge ${l.ok ? 'badge-ok' : 'badge-no'}">${l.ok ? '✓' : '✗'}</span>
+          <span style="color:#374151;font-size:11px">${l.time}</span>
+        </div>`;
+      }
+      html += `</div></div>`;
+    }
+  }
+
+  html += `<div style="text-align:center;margin-top:16px;display:flex;gap:8px;justify-content:center">`;
+  html += `<button class="btn-secondary" onclick="handleReset()">🔄 Chơi lại</button>`;
+  html += `<button class="btn-secondary" onclick="handleLeave()">🚪 Rời game</button>`;
+  html += `</div>`;
+
+  app.innerHTML = html;
+}
+
+function renderJoin() {
+  return `<div class="card">
+    <div class="section-label">Nhập tên của bạn</div>
+    <div class="join-form">
+      <input type="text" id="nameInput" placeholder="Tên hiển thị của bạn..." maxlength="20" />
+      <button onclick="handleJoin()">Vào chơi →</button>
+    </div>
+    <div class="notice" style="margin-top:14px">Wuyen beooo</div>
+  </div>`;
+}
+
+async function handleJoin() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) return;
+  await joinGame(name);
+}
+
+async function handleSubmitWord() {
+  const word = document.getElementById('wordInput')?.value.trim().toLowerCase();
+  if (!word) return;
+  await submitWord(word);
+  await renderFromStorage();
+}
+
+async function handleSubmitAnswer() {
+  const word = document.getElementById('ansInput')?.value.trim().toLowerCase();
+  if (!word) return;
+  await submitAnswer(word);
+  await renderFromStorage();
+}
+
+async function handleApprove(yes) {
+  await approveWord(yes);
+  await renderFromStorage();
+}
+
+async function handleReset() {
+  await resetGame();
+  await renderFromStorage();
+}
+
+async function handleLeave() {
+  if (pollTimer) clearInterval(pollTimer);
+  let state = await loadState() || defaultState();
+  state.players = state.players.filter(p => p.id !== myId);
+  state.askerIndex = 0;
+  state.currentWord = '';
+  state.pendingWord = null;
+  state.pendingFrom = null;
+  await saveState(state);
+  myId = '';
+  myName = '';
+  document.getElementById('app').innerHTML = renderJoin();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const nameInput = document.getElementById('nameInput');
+    const wordInput = document.getElementById('wordInput');
+    const ansInput = document.getElementById('ansInput');
+    if (nameInput) handleJoin();
+    else if (wordInput) handleSubmitWord();
+    else if (ansInput) handleSubmitAnswer();
+  }
+});
+
+document.getElementById('app').innerHTML = renderJoin();
+</script>
+</body>
+</html>
