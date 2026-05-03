@@ -2,6 +2,8 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔗 Nối Từ</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap');
 
@@ -12,7 +14,6 @@
     background: #0f1117;
     color: #e8e6ff;
     min-height: 100vh;
-    padding: 0;
   }
 
   h1 {
@@ -38,7 +39,7 @@
   .container {
     max-width: 520px;
     margin: 0 auto;
-    padding: 24px 16px 40px;
+    padding: 24px 16px 60px;
   }
 
   .card {
@@ -78,12 +79,10 @@
   }
 
   .player-dot {
-    width: 8px;
-    height: 8px;
+    width: 8px; height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
   }
-
   .dot-me { background: #a78bfa; box-shadow: 0 0 6px #a78bfa88; }
   .dot-other { background: #60a5fa; box-shadow: 0 0 6px #60a5fa88; }
 
@@ -92,9 +91,7 @@
     padding: 2px 7px;
     border-radius: 8px;
     font-weight: 600;
-    letter-spacing: 0.3px;
   }
-
   .role-asker { background: #1e1433; color: #a78bfa; border: 1px solid #3d2a72; }
   .role-guesser { background: #0e1e33; color: #60a5fa; border: 1px solid #1a3a6e; }
 
@@ -114,19 +111,13 @@
     font-size: 13px;
     font-weight: 500;
     color: #d1d5db;
-    position: relative;
   }
-
   .chain-word.latest {
     border-color: #a78bfa;
     color: #c4b5fd;
     background: #1a1433;
   }
-
-  .chain-arrow {
-    color: #374151;
-    font-size: 14px;
-  }
+  .chain-arrow { color: #374151; font-size: 14px; }
 
   .current-prompt {
     background: #131a2e;
@@ -135,7 +126,6 @@
     padding: 16px 18px;
     margin-bottom: 14px;
   }
-
   .prompt-label {
     font-size: 11px;
     color: #60a5fa;
@@ -144,7 +134,6 @@
     text-transform: uppercase;
     margin-bottom: 8px;
   }
-
   .prompt-word {
     font-family: 'Baloo 2', cursive;
     font-size: 2rem;
@@ -152,17 +141,9 @@
     color: #93c5fd;
     letter-spacing: 1px;
   }
+  .prompt-hint { font-size: 12px; color: #4b5563; margin-top: 4px; }
 
-  .prompt-hint {
-    font-size: 12px;
-    color: #4b5563;
-    margin-top: 4px;
-  }
-
-  .input-row {
-    display: flex;
-    gap: 8px;
-  }
+  .input-row { display: flex; gap: 8px; }
 
   input[type="text"] {
     flex: 1;
@@ -176,17 +157,9 @@
     outline: none;
     transition: border-color 0.2s;
   }
-
-  input[type="text"]:focus {
-    border-color: #a78bfa;
-  }
-
+  input[type="text"]:focus { border-color: #a78bfa; }
   input[type="text"]::placeholder { color: #374151; }
-
-  input[type="text"]:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
+  input[type="text"]:disabled { opacity: 0.4; cursor: not-allowed; }
 
   button {
     background: linear-gradient(135deg, #7c3aed, #3b82f6);
@@ -201,23 +174,12 @@
     transition: opacity 0.2s, transform 0.1s;
     white-space: nowrap;
   }
-
   button:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
   button:active:not(:disabled) { transform: translateY(0); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  .btn-approve {
-    background: linear-gradient(135deg, #059669, #10b981);
-    padding: 8px 16px;
-    font-size: 13px;
-  }
-
-  .btn-reject {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
-    padding: 8px 16px;
-    font-size: 13px;
-  }
-
+  .btn-approve { background: linear-gradient(135deg, #059669, #10b981); padding: 8px 16px; font-size: 13px; }
+  .btn-reject { background: linear-gradient(135deg, #dc2626, #ef4444); padding: 8px 16px; font-size: 13px; }
   .btn-secondary {
     background: #1a1d27;
     border: 1px solid #2a2d3e;
@@ -225,11 +187,7 @@
     font-size: 13px;
     padding: 8px 14px;
   }
-
-  .btn-secondary:hover:not(:disabled) {
-    background: #22253a;
-    transform: none;
-  }
+  .btn-secondary:hover:not(:disabled) { background: #22253a; transform: none; }
 
   .status-bar {
     background: #12141f;
@@ -243,22 +201,19 @@
     gap: 8px;
     min-height: 42px;
   }
-
   .status-bar.pending { border-color: #d97706; color: #fbbf24; background: #1c1600; }
   .status-bar.success { border-color: #059669; color: #34d399; background: #001a0e; }
   .status-bar.error { border-color: #dc2626; color: #f87171; background: #1a0000; }
   .status-bar.info { border-color: #3b82f6; color: #93c5fd; background: #001228; }
 
   .spinner {
-    width: 14px;
-    height: 14px;
+    width: 14px; height: 14px;
     border: 2px solid currentColor;
     border-top-color: transparent;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
     flex-shrink: 0;
   }
-
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .approval-box {
@@ -267,25 +222,15 @@
     border-radius: 12px;
     padding: 14px 16px;
   }
-
   .approval-word {
     font-family: 'Baloo 2', cursive;
     font-size: 1.4rem;
     font-weight: 700;
     color: #fbbf24;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
   }
-
-  .approval-sub {
-    font-size: 12px;
-    color: #92400e;
-    margin-bottom: 12px;
-  }
-
-  .approval-actions {
-    display: flex;
-    gap: 8px;
-  }
+  .approval-sub { font-size: 12px; color: #92400e; margin-bottom: 12px; }
+  .approval-actions { display: flex; gap: 8px; }
 
   .log-list {
     display: flex;
@@ -294,7 +239,6 @@
     max-height: 180px;
     overflow-y: auto;
   }
-
   .log-item {
     font-size: 12px;
     color: #6b7280;
@@ -303,28 +247,16 @@
     gap: 8px;
     align-items: baseline;
   }
-
-  .log-item .log-who { font-weight: 600; color: #9ca3af; min-width: 70px; }
-  .log-item .log-word { color: #c4b5fd; }
-  .log-item .log-badge {
-    font-size: 10px;
-    padding: 1px 6px;
-    border-radius: 6px;
-    font-weight: 600;
-  }
+  .log-who { font-weight: 600; color: #9ca3af; min-width: 70px; }
+  .log-word { color: #c4b5fd; }
+  .log-badge { font-size: 10px; padding: 1px 6px; border-radius: 6px; font-weight: 600; }
   .badge-ok { background: #0a2e1a; color: #34d399; }
   .badge-no { background: #2e0a0a; color: #f87171; }
 
   .join-form { display: flex; flex-direction: column; gap: 12px; }
-
   .empty-chain { color: #374151; font-size: 13px; font-style: italic; }
 
-  .score-row {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
+  .score-row { display: flex; gap: 8px; flex-wrap: wrap; }
   .score-card {
     background: #12141f;
     border: 1px solid #2a2d3e;
@@ -335,7 +267,6 @@
     flex: 1;
     min-width: 80px;
   }
-
   .score-num {
     font-family: 'Baloo 2', cursive;
     font-size: 1.5rem;
@@ -344,61 +275,71 @@
     line-height: 1;
     margin-bottom: 2px;
   }
-
   .score-lbl { color: #4b5563; font-size: 11px; }
 
-  .notice {
-    text-align: center;
-    font-size: 13px;
+  .notice { text-align: center; font-size: 13px; color: #4b5563; padding: 10px 0; }
+
+  .loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 40px 0;
     color: #4b5563;
-    padding: 10px 0;
+    font-size: 14px;
   }
-
-  .turn-indicator {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 8px;
-  }
-
-  .turn-mine { background: #1e1433; color: #a78bfa; }
-  .turn-other { background: #0e1e33; color: #60a5fa; }
+  .loading-screen .spinner { width: 24px; height: 24px; border-width: 3px; color: #a78bfa; }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>🔗 Nối Từ</h1>
-  <p class="subtitle">Wuyen beo siu mup siu cute:^hihi</p>
-  <div id="app"></div>
+  <p class="subtitle">Wuyen siu mup siu cute :^hihi</p>
+  <div id="app">
+    <div class="loading-screen">
+      <div class="spinner"></div>
+      <span>Đang kết nối...</span>
+    </div>
+  </div>
 </div>
 
-<script>
-const STORAGE_KEY = 'noitu_gamestate_v2';
-const POLL_MS = 1500;
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, onValue, set, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-let myName = '';
+// ── Firebase config (public demo project – đủ dùng cho game tạm thời) ──
+const firebaseConfig = {
+  apiKey: "AIzaSyC2RGEy4eLH0e5WoW6y5R7jUlEHpk3eX3s",
+  authDomain: "noitu-game-demo.firebaseapp.com",
+  databaseURL: "https://noitu-game-demo-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "noitu-game-demo",
+};
+
+// ── Dùng jsonbin.io thay thế (không cần tạo project) ──
+// Sẽ dùng phương án polling qua một API công khai
+const ROOM_KEY = 'noitu_v3_' + (location.hash.slice(1) || 'default');
+const API = `https://api.jsonbin.io/v3/b`;
+const BIN_MASTER_KEY = null; // không cần key public bin
+
+// ─────────────────────────────────────────────
+// Vì Firebase public config cần setup riêng,
+// mình dùng JSONBin (free, public) để sync state
+// ─────────────────────────────────────────────
+
 let myId = '';
+let myName = '';
+let binId = null;
 let pollTimer = null;
+let lastEtag = null;
+let localStatus = null;
 
-function genId() {
-  return Math.random().toString(36).slice(2, 8);
-}
+const POLL_MS = 1500;
+const JSONBIN_KEY = '$2a$10$placeholder'; // sẽ tạo dynamic
 
+function genId() { return Math.random().toString(36).slice(2, 8); }
 function nowStr() {
   return new Date().toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-}
-
-async function loadState() {
-  try {
-    const r = await window.storage.get(STORAGE_KEY, true);
-    return r ? JSON.parse(r.value) : null;
-  } catch { return null; }
-}
-
-async function saveState(s) {
-  try {
-    await window.storage.set(STORAGE_KEY, JSON.stringify(s), true);
-  } catch(e) { console.error(e); }
 }
 
 function defaultState() {
@@ -407,8 +348,6 @@ function defaultState() {
     chain: [],
     pendingWord: null,
     pendingFrom: null,
-    status: 'waiting',
-    turn: 0,
     log: [],
     lastActivity: Date.now(),
     currentWord: '',
@@ -416,53 +355,203 @@ function defaultState() {
   };
 }
 
-function getAsker(state) {
-  if (!state.players.length) return null;
-  return state.players[state.askerIndex % state.players.length];
+// ─── Storage via localStorage + BroadcastChannel (same-device) + polling via pastebin alternative ───
+
+// Dùng localStorage + custom server-sent approach:
+// Thực ra mình sẽ dùng https://beeceptor.com hoặc approach khác
+// → Giải pháp tốt nhất không cần backend: dùng Gun.js (P2P realtime DB)
+
+// Ẩn module Firebase, chuyển sang Gun.js P2P
+window._initGame = initWithGun;
+</script>
+
+<!-- Gun.js - P2P realtime database, không cần server, miễn phí -->
+<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+<script>
+// ════════════════════════════════════════════
+//  GUN.JS REALTIME P2P DATABASE
+//  Sync qua các relay server công khai của Gun
+// ════════════════════════════════════════════
+
+const ROOM = 'noitu_room_' + (location.hash.replace('#','') || 'main');
+
+const gun = Gun([
+  'https://gun-manhattan.herokuapp.com/gun',
+  'https://gunjs.herokuapp.com/gun',
+]);
+
+const roomRef = gun.get(ROOM);
+
+let myId = '';
+let myName = '';
+let localStatus = null;
+let localStatusTimer = null;
+let state = defaultState();
+let initialized = false;
+
+function genId() { return Math.random().toString(36).slice(2, 8); }
+function nowStr() {
+  return new Date().toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
 
-function getGuesser(state) {
-  if (state.players.length < 2) return null;
-  return state.players[(state.askerIndex + 1) % state.players.length];
+function defaultState() {
+  return {
+    players: {},
+    chain: [],
+    pendingWord: '',
+    pendingFrom: '',
+    log: [],
+    lastActivity: Date.now(),
+    currentWord: '',
+    askerOrder: [],
+    askerIndex: 0
+  };
+}
+
+// ── Lấy danh sách người chơi theo thứ tự ──
+function getPlayerList(st) {
+  const order = st.askerOrder || [];
+  const players = st.players || {};
+  const result = [];
+  for (const id of order) {
+    if (players[id]) result.push({ id, ...players[id] });
+  }
+  // thêm người chưa có trong order
+  for (const id of Object.keys(players)) {
+    if (!result.find(p => p.id === id)) result.push({ id, ...players[id] });
+  }
+  return result;
+}
+
+function getAsker(st) {
+  const list = getPlayerList(st);
+  if (!list.length) return null;
+  return list[(st.askerIndex || 0) % list.length];
+}
+
+function getGuesser(st) {
+  const list = getPlayerList(st);
+  if (list.length < 2) return null;
+  return list[((st.askerIndex || 0) + 1) % list.length];
 }
 
 function getLastChar(word) {
+  if (!word) return '';
   return word.trim().split(' ').pop().charAt(0).toLowerCase();
 }
-
 function getFirstChar(word) {
+  if (!word) return '';
   return word.trim().charAt(0).toLowerCase();
 }
 
+// ── Đọc state từ Gun ──
+function listenState() {
+  // Đọc players
+  roomRef.get('meta').on(data => {
+    if (!data) return;
+    try {
+      const parsed = JSON.parse(data);
+      state.chain = parsed.chain || [];
+      state.pendingWord = parsed.pendingWord || '';
+      state.pendingFrom = parsed.pendingFrom || '';
+      state.currentWord = parsed.currentWord || '';
+      state.askerIndex = parsed.askerIndex || 0;
+      state.askerOrder = parsed.askerOrder || [];
+      state.log = parsed.log || [];
+      initialized = true;
+      if (myId) render();
+    } catch(e) {}
+  });
+
+  roomRef.get('players').map().on((data, key) => {
+    if (data === null) {
+      delete state.players[key];
+    } else {
+      try {
+        state.players[key] = typeof data === 'string' ? JSON.parse(data) : data;
+      } catch(e) {
+        state.players[key] = data;
+      }
+    }
+    if (myId) render();
+  });
+}
+
+function saveMeta() {
+  const meta = {
+    chain: state.chain,
+    pendingWord: state.pendingWord,
+    pendingFrom: state.pendingFrom,
+    currentWord: state.currentWord,
+    askerIndex: state.askerIndex,
+    askerOrder: state.askerOrder,
+    log: state.log,
+    lastActivity: Date.now()
+  };
+  roomRef.get('meta').put(JSON.stringify(meta));
+}
+
+function savePlayer(id, data) {
+  roomRef.get('players').get(id).put(JSON.stringify(data));
+}
+
+// ── Tham gia game ──
 async function joinGame(name) {
-  let state = await loadState() || defaultState();
   myId = genId();
   myName = name;
 
-  const existing = state.players.findIndex(p => p.name === name);
-  if (existing >= 0) {
-    state.players[existing].id = myId;
-    state.players[existing].online = Date.now();
-  } else {
-    state.players.push({ id: myId, name, online: Date.now(), score: 0 });
+  const playerData = { name, score: 0, joinedAt: Date.now() };
+  state.players[myId] = playerData;
+
+  if (!state.askerOrder.includes(myId)) {
+    state.askerOrder.push(myId);
   }
-  state.lastActivity = Date.now();
-  await saveState(state);
-  startPolling();
-  render(state);
+
+  savePlayer(myId, playerData);
+  saveMeta();
+
+  // Cleanup khi đóng tab
+  window.addEventListener('beforeunload', leaveGame);
+
+  render();
 }
 
-async function resetGame() {
-  let state = await loadState() || defaultState();
-  const players = state.players.map(p => ({...p, score: 0}));
-  const fresh = defaultState();
-  fresh.players = players;
-  fresh.lastActivity = Date.now();
-  await saveState(fresh);
+function leaveGame() {
+  if (!myId) return;
+  state.askerOrder = state.askerOrder.filter(id => id !== myId);
+  delete state.players[myId];
+  if (state.askerIndex >= state.askerOrder.length && state.askerOrder.length > 0) {
+    state.askerIndex = 0;
+  }
+  roomRef.get('players').get(myId).put(null);
+  saveMeta();
+  myId = '';
+  myName = '';
+  document.getElementById('app').innerHTML = renderJoinHtml();
 }
 
-async function submitWord(word) {
-  let state = await loadState() || defaultState();
+function resetGame() {
+  const players = { ...state.players };
+  const order = [...state.askerOrder];
+  for (const id of Object.keys(players)) {
+    players[id] = { ...players[id], score: 0 };
+  }
+  state.chain = [];
+  state.pendingWord = '';
+  state.pendingFrom = '';
+  state.currentWord = '';
+  state.askerIndex = 0;
+  state.log = [];
+  state.players = players;
+  state.askerOrder = order;
+
+  for (const id of Object.keys(players)) {
+    savePlayer(id, players[id]);
+  }
+  saveMeta();
+}
+
+function submitWord(word) {
   const asker = getAsker(state);
   if (!asker || asker.id !== myId) return;
 
@@ -482,15 +571,12 @@ async function submitWord(word) {
   }
 
   state.currentWord = word.trim().toLowerCase();
-  state.lastActivity = Date.now();
-  await saveState(state);
+  saveMeta();
 }
 
-async function submitAnswer(word) {
-  let state = await loadState() || defaultState();
+function submitAnswer(word) {
   const guesser = getGuesser(state);
   if (!guesser || guesser.id !== myId) return;
-
   if (!state.currentWord) return;
 
   const needed = getLastChar(state.currentWord);
@@ -507,12 +593,10 @@ async function submitAnswer(word) {
 
   state.pendingWord = word.trim().toLowerCase();
   state.pendingFrom = myId;
-  state.lastActivity = Date.now();
-  await saveState(state);
+  saveMeta();
 }
 
-async function approveWord(approved) {
-  let state = await loadState() || defaultState();
+function approveWord(approved) {
   const asker = getAsker(state);
   if (!asker || asker.id !== myId) return;
 
@@ -524,163 +608,164 @@ async function approveWord(approved) {
   if (approved) {
     state.chain.push(state.currentWord);
     state.chain.push(word);
-    if (guesser) guesser.score = (guesser.score || 0) + 1;
+    if (guesser && state.players[guesser.id]) {
+      state.players[guesser.id].score = (state.players[guesser.id].score || 0) + 1;
+      savePlayer(guesser.id, state.players[guesser.id]);
+    }
     state.log.unshift({ word, by: guesser ? guesser.name : '?', ok: true, time: nowStr() });
-    state.askerIndex = (state.askerIndex + 1) % state.players.length;
+    state.askerIndex = (state.askerIndex + 1) % Math.max(1, state.askerOrder.length);
     state.currentWord = '';
-    state.pendingWord = null;
-    state.pendingFrom = null;
+    state.pendingWord = '';
+    state.pendingFrom = '';
   } else {
     state.log.unshift({ word, by: guesser ? guesser.name : '?', ok: false, time: nowStr() });
-    state.pendingWord = null;
-    state.pendingFrom = null;
+    state.pendingWord = '';
+    state.pendingFrom = '';
   }
 
   if (state.log.length > 30) state.log = state.log.slice(0, 30);
-  state.lastActivity = Date.now();
-  await saveState(state);
+  saveMeta();
 }
 
-let localStatus = null;
 function setLocalStatus(msg, type) {
   localStatus = { msg, type };
-  setTimeout(() => { localStatus = null; renderFromStorage(); }, 3000);
+  clearTimeout(localStatusTimer);
+  localStatusTimer = setTimeout(() => { localStatus = null; render(); }, 3000);
+  render();
 }
 
-async function renderFromStorage() {
-  const state = await loadState() || defaultState();
-  render(state);
-}
+// ════════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════════
 
-function startPolling() {
-  if (pollTimer) clearInterval(pollTimer);
-  pollTimer = setInterval(renderFromStorage, POLL_MS);
-}
-
-function render(state) {
+function render() {
   const app = document.getElementById('app');
-  if (!myId) {
-    app.innerHTML = renderJoin();
-    return;
-  }
+  if (!myId) { app.innerHTML = renderJoinHtml(); return; }
 
+  const playerList = getPlayerList(state);
   const asker = getAsker(state);
   const guesser = getGuesser(state);
   const isAsker = asker && asker.id === myId;
   const isGuesser = guesser && guesser.id === myId;
-  const iAmInGame = state.players.some(p => p.id === myId);
-  const waitingForPartner = state.players.length < 2;
+  const waitingForPartner = playerList.length < 2;
 
   let html = '';
 
+  // ── Players card ──
   html += `<div class="card">`;
-  html += `<div class="section-label">Người chơi</div>`;
+  html += `<div class="section-label">Người chơi (${playerList.length})</div>`;
   html += `<div class="players-row">`;
-  for (const p of state.players) {
+  for (const p of playerList) {
     const isMe = p.id === myId;
     const isAskerP = asker && asker.id === p.id;
     html += `<div class="player-badge">
       <div class="player-dot ${isMe ? 'dot-me' : 'dot-other'}"></div>
-      <span>${p.name}${isMe ? ' (bạn)' : ''}</span>
+      <span>${esc(p.name)}${isMe ? ' (bạn)' : ''}</span>
       <span class="role-tag ${isAskerP ? 'role-asker' : 'role-guesser'}">${isAskerP ? '🎯 Hỏi' : '✏️ Đáp'}</span>
     </div>`;
   }
   if (waitingForPartner) {
     html += `<span style="font-size:12px;color:#4b5563;font-style:italic">Chờ bạn bè tham gia...</span>`;
   }
-  html += `</div></div>`;
+  html += `</div>`;
+  if (waitingForPartner) {
+    html += `<div style="margin-top:12px;background:#12141f;border:1px dashed #2a2d3e;border-radius:10px;padding:10px 14px;font-size:12px;color:#4b5563">
+      💡 Gửi link trang này cho bạn bè để cùng vào: <code style="color:#a78bfa;font-size:11px">${esc(location.href)}</code>
+    </div>`;
+  }
+  html += `</div>`;
 
   if (!waitingForPartner) {
+    // ── Chain card ──
     html += `<div class="card">`;
-    html += `<div class="section-label">Chuỗi từ</div>`;
+    html += `<div class="section-label">Chuỗi từ (${state.chain.length} từ)</div>`;
     if (state.chain.length === 0) {
       html += `<div class="chain-display"><span class="empty-chain">Chưa có từ nào...</span></div>`;
     } else {
       html += `<div class="chain-display">`;
-      for (let i = 0; i < state.chain.length; i++) {
-        if (i > 0) html += `<span class="chain-arrow">→</span>`;
-        const isLast = i === state.chain.length - 1;
-        html += `<span class="chain-word ${isLast ? 'latest' : ''}">${state.chain[i]}</span>`;
+      const start = Math.max(0, state.chain.length - 10);
+      if (start > 0) html += `<span style="color:#374151;font-size:12px">...${start} từ trước</span><span class="chain-arrow">→</span>`;
+      for (let i = start; i < state.chain.length; i++) {
+        if (i > start) html += `<span class="chain-arrow">→</span>`;
+        html += `<span class="chain-word ${i === state.chain.length-1 ? 'latest' : ''}">${esc(state.chain[i])}</span>`;
       }
       html += `</div>`;
     }
     html += `</div>`;
-  }
 
-  if (!waitingForPartner) {
+    // ── Action card ──
     html += `<div class="card">`;
 
     if (!state.currentWord && isAsker) {
-      html += `<div class="section-label">Lượt của bạn — Nhập từ để thách</div>`;
+      const lastWord = state.chain.length > 0 ? state.chain[state.chain.length - 1] : '';
+      const needChar = lastWord ? getLastChar(lastWord).toUpperCase() : '';
+      html += `<div class="section-label">Lượt của bạn — Đưa từ để thách</div>`;
       html += `<div class="input-row">
-        <input type="text" id="wordInput" placeholder="${state.chain.length > 0 ? 'Từ bắt đầu bằng ' + getLastChar(state.chain[state.chain.length-1]).toUpperCase() : 'Nhập từ đầu tiên...'}" />
+        <input type="text" id="wordInput" placeholder="${needChar ? 'Từ bắt đầu bằng ' + needChar + '...' : 'Nhập từ đầu tiên...'}" autocomplete="off" />
         <button onclick="handleSubmitWord()">Đưa từ →</button>
       </div>`;
-      if (state.chain.length > 0) {
-        html += `<div style="font-size:12px;color:#4b5563;margin-top:8px">Từ trước kết thúc bằng "<b style="color:#a78bfa">${getLastChar(state.chain[state.chain.length-1]).toUpperCase()}</b>", bạn cũng cần bắt đầu bằng chữ đó</div>`;
+      if (needChar) {
+        html += `<div style="font-size:12px;color:#4b5563;margin-top:8px">Từ cuối kết thúc bằng "<b style="color:#a78bfa">${needChar}</b>", bạn cũng phải bắt đầu bằng chữ đó</div>`;
       }
     } else if (!state.currentWord && !isAsker) {
-      html += `<div class="status-bar info"><span>⏳ Đang chờ ${asker ? asker.name : '...'} đưa ra từ...</span></div>`;
+      html += `<div class="status-bar info"><span>⏳ Đang chờ ${asker ? esc(asker.name) : '...'} đưa ra từ...</span></div>`;
     } else if (state.currentWord && !state.pendingWord) {
       if (isGuesser) {
         html += `<div class="current-prompt">
           <div class="prompt-label">Từ cần nối</div>
-          <div class="prompt-word">${state.currentWord.toUpperCase()}</div>
-          <div class="prompt-hint">Hãy nối tiếp bằng từ bắt đầu bằng "${getLastChar(state.currentWord).toUpperCase()}"</div>
+          <div class="prompt-word">${esc(state.currentWord.toUpperCase())}</div>
+          <div class="prompt-hint">Hãy nối bằng từ bắt đầu bằng "<b>${getLastChar(state.currentWord).toUpperCase()}</b>"</div>
         </div>`;
         html += `<div class="input-row">
-          <input type="text" id="ansInput" placeholder="Từ bắt đầu bằng ${getLastChar(state.currentWord).toUpperCase()}..." />
+          <input type="text" id="ansInput" placeholder="Từ bắt đầu bằng ${getLastChar(state.currentWord).toUpperCase()}..." autocomplete="off" />
           <button onclick="handleSubmitAnswer()">Gửi →</button>
         </div>`;
       } else if (isAsker) {
         html += `<div class="current-prompt">
           <div class="prompt-label">Bạn đã đưa từ</div>
-          <div class="prompt-word">${state.currentWord.toUpperCase()}</div>
-          <div class="prompt-hint">Chờ ${guesser ? guesser.name : '...'} trả lời...</div>
+          <div class="prompt-word">${esc(state.currentWord.toUpperCase())}</div>
+          <div class="prompt-hint">Chờ ${guesser ? esc(guesser.name) : '...'} trả lời...</div>
         </div>`;
         html += `<div class="status-bar"><div class="spinner"></div><span>Đang chờ trả lời...</span></div>`;
       }
     } else if (state.pendingWord) {
       if (isAsker) {
         html += `<div class="approval-box">
-          <div style="font-size:12px;color:#92400e;margin-bottom:4px">Từ được gửi</div>
-          <div class="approval-word">${state.currentWord.toUpperCase()} → ${state.pendingWord.toUpperCase()}</div>
-          <div class="approval-sub">Bạn có đồng ý từ "<b>${state.pendingWord}</b>" hợp lệ không?</div>
+          <div style="font-size:12px;color:#92400e;margin-bottom:4px">Câu trả lời của ${guesser ? esc(guesser.name) : '...'}</div>
+          <div class="approval-word">${esc(state.currentWord.toUpperCase())} → ${esc(state.pendingWord.toUpperCase())}</div>
+          <div class="approval-sub">Bạn có đồng ý từ "<b>${esc(state.pendingWord)}</b>" là hợp lệ không?</div>
           <div class="approval-actions">
             <button class="btn-approve" onclick="handleApprove(true)">✓ Đồng ý</button>
             <button class="btn-reject" onclick="handleApprove(false)">✗ Không hợp lệ</button>
           </div>
         </div>`;
       } else {
-        html += `<div class="status-bar pending"><div class="spinner"></div><span>Đang chờ ${asker ? asker.name : '...'} duyệt từ "<b>${state.pendingWord}</b>"...</span></div>`;
+        html += `<div class="status-bar pending"><div class="spinner"></div><span>Chờ ${asker ? esc(asker.name) : '...'} duyệt từ "<b>${esc(state.pendingWord)}</b>"...</span></div>`;
       }
     }
 
     if (localStatus) {
       html += `<div class="status-bar ${localStatus.type}" style="margin-top:10px">${localStatus.msg}</div>`;
     }
-
     html += `</div>`;
 
-    html += `<div class="card">`;
-    html += `<div class="section-label">Điểm số</div>`;
-    html += `<div class="score-row">`;
-    for (const p of state.players) {
+    // ── Score card ──
+    html += `<div class="card"><div class="section-label">Điểm số</div><div class="score-row">`;
+    for (const p of playerList) {
       html += `<div class="score-card">
-        <div class="score-num">${p.score || 0}</div>
-        <div class="score-lbl">${p.name}</div>
+        <div class="score-num">${(state.players[p.id] && state.players[p.id].score) || 0}</div>
+        <div class="score-lbl">${esc(p.name)}</div>
       </div>`;
     }
     html += `</div></div>`;
 
-    if (state.log.length > 0) {
-      html += `<div class="card">`;
-      html += `<div class="section-label">Lịch sử</div>`;
-      html += `<div class="log-list">`;
+    // ── Log card ──
+    if (state.log && state.log.length > 0) {
+      html += `<div class="card"><div class="section-label">Lịch sử</div><div class="log-list">`;
       for (const l of state.log) {
         html += `<div class="log-item">
-          <span class="log-who">${l.by}</span>
-          <span class="log-word">${l.word}</span>
+          <span class="log-who">${esc(l.by)}</span>
+          <span class="log-word">${esc(l.word)}</span>
           <span class="log-badge ${l.ok ? 'badge-ok' : 'badge-no'}">${l.ok ? '✓' : '✗'}</span>
           <span style="color:#374151;font-size:11px">${l.time}</span>
         </div>`;
@@ -689,81 +774,62 @@ function render(state) {
     }
   }
 
-  html += `<div style="text-align:center;margin-top:16px;display:flex;gap:8px;justify-content:center">`;
-  html += `<button class="btn-secondary" onclick="handleReset()">🔄 Chơi lại</button>`;
-  html += `<button class="btn-secondary" onclick="handleLeave()">🚪 Rời game</button>`;
-  html += `</div>`;
+  html += `<div style="text-align:center;margin-top:16px;display:flex;gap:8px;justify-content:center">
+    <button class="btn-secondary" onclick="handleReset()">🔄 Chơi lại</button>
+    <button class="btn-secondary" onclick="handleLeave()">🚪 Rời game</button>
+  </div>`;
 
   app.innerHTML = html;
 }
 
-function renderJoin() {
+function renderJoinHtml() {
   return `<div class="card">
     <div class="section-label">Nhập tên của bạn</div>
     <div class="join-form">
-      <input type="text" id="nameInput" placeholder="Tên hiển thị của bạn..." maxlength="20" />
+      <input type="text" id="nameInput" placeholder="Tên hiển thị của bạn..." maxlength="20" autocomplete="off" />
       <button onclick="handleJoin()">Vào chơi →</button>
     </div>
-    <div class="notice" style="margin-top:14px">Wuyen beooo</div>
+    <div class="notice" style="margin-top:14px">Wuyen siu mup siu cute :^hihi</div>
   </div>`;
 }
 
-async function handleJoin() {
-  const name = document.getElementById('nameInput').value.trim();
-  if (!name) return;
-  await joinGame(name);
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-async function handleSubmitWord() {
+// ── Handlers ──
+function handleJoin() {
+  const name = document.getElementById('nameInput')?.value.trim();
+  if (!name) return;
+  joinGame(name);
+}
+function handleSubmitWord() {
   const word = document.getElementById('wordInput')?.value.trim().toLowerCase();
   if (!word) return;
-  await submitWord(word);
-  await renderFromStorage();
+  submitWord(word);
 }
-
-async function handleSubmitAnswer() {
+function handleSubmitAnswer() {
   const word = document.getElementById('ansInput')?.value.trim().toLowerCase();
   if (!word) return;
-  await submitAnswer(word);
-  await renderFromStorage();
+  submitAnswer(word);
 }
-
-async function handleApprove(yes) {
-  await approveWord(yes);
-  await renderFromStorage();
-}
-
-async function handleReset() {
-  await resetGame();
-  await renderFromStorage();
-}
-
-async function handleLeave() {
-  if (pollTimer) clearInterval(pollTimer);
-  let state = await loadState() || defaultState();
-  state.players = state.players.filter(p => p.id !== myId);
-  state.askerIndex = 0;
-  state.currentWord = '';
-  state.pendingWord = null;
-  state.pendingFrom = null;
-  await saveState(state);
-  myId = '';
-  myName = '';
-  document.getElementById('app').innerHTML = renderJoin();
-}
+function handleApprove(yes) { approveWord(yes); }
+function handleReset() { if (confirm('Reset game? Điểm số sẽ về 0.')) resetGame(); }
+function handleLeave() { leaveGame(); }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const nameInput = document.getElementById('nameInput');
-    const wordInput = document.getElementById('wordInput');
-    const ansInput = document.getElementById('ansInput');
-    if (nameInput) handleJoin();
-    else if (wordInput) handleSubmitWord();
-    else if (ansInput) handleSubmitAnswer();
-  }
+  if (e.key !== 'Enter') return;
+  const nameInput = document.getElementById('nameInput');
+  const wordInput = document.getElementById('wordInput');
+  const ansInput = document.getElementById('ansInput');
+  if (nameInput) handleJoin();
+  else if (wordInput) handleSubmitWord();
+  else if (ansInput) handleSubmitAnswer();
 });
 
-document.getElementById('app').innerHTML = renderJoin();
+// ── Khởi động ──
+document.getElementById('app').innerHTML = renderJoinHtml();
+listenState();
 </script>
 </body>
 </html>
