@@ -233,25 +233,25 @@ async function voteKick(targetId){
 
 async function voteReset(){
   if(!myId) return;
-  const votes={...(state.votes||{})};
-  const key='reset';
-  const existing=votes[key]||[];
-  if(existing.includes(myId)){
-    votes[key]=existing.filter(id=>id!==myId);
-  } else {
-    votes[key]=[...existing,myId];
+
+  // reset luôn
+  const ps={};
+  for(const id of Object.keys(state.players||{})){
+    ps[id]={...state.players[id],score:0};
   }
-  const needed=Math.ceil(players().length/2);
-  if((votes[key]||[]).length>=needed){
-    // Đủ vote → reset
-    const ps={};
-    for(const id of Object.keys(state.players||{})) ps[id]={...state.players[id],score:0};
-    await doAction({players:ps,chain:[],pendingWord:'',pendingFrom:'',currentWord:'',askerIndex:0,log:[],votes:{}});
-    setLocalStatus('✅ Phòng đã được reset!','success');
-  } else {
-    await doAction({votes});
-    setLocalStatus(`🗳 Đã vote reset (${(votes[key]||[]).length}/${needed})`, 'info');
-  }
+
+  await doAction({
+    players:ps,
+    chain:[],
+    pendingWord:'',
+    pendingFrom:'',
+    currentWord:'',
+    askerIndex:0,
+    log:[],
+    votes:{}
+  });
+
+  setLocalStatus('🔄 Đã reset phòng','success');
 }
 
 async function submitWord(word){
