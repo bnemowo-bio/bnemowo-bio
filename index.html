@@ -22,13 +22,16 @@ h1{font-family:'Baloo 2',cursive;font-weight:800;font-size:2rem;background:linea
 .role-asker{background:#1e1433;color:#a78bfa;border:1px solid #3d2a72}
 .role-guesser{background:#0e1e33;color:#60a5fa;border:1px solid #1a3a6e}
 .chain-display{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;align-items:center}
-.chain-word{background:#12141f;border:1px solid #2a2d3e;border-radius:20px;padding:5px 13px;font-size:13px;font-weight:500;color:#d1d5db}
+.chain-word{background:#12141f;border:1px solid #2a2d3e;border-radius:20px;padding:5px 13px;font-size:13px;font-weight:500;color:#d1d5db;position:relative}
 .chain-word.latest{border-color:#a78bfa;color:#c4b5fd;background:#1a1433}
+/* highlight the linking word within a phrase */
+.chain-word .link-part{color:#34d399;font-weight:700}
 .chain-arrow{color:#374151;font-size:14px}
 .current-prompt{background:#131a2e;border:1px solid #1e3a5f;border-radius:12px;padding:16px 18px;margin-bottom:14px}
 .prompt-label{font-size:11px;color:#60a5fa;font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
 .prompt-word{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;color:#93c5fd;letter-spacing:1px}
-.prompt-hint{font-size:12px;color:#4b5563;margin-top:4px}
+.prompt-link{font-size:13px;color:#4b5563;margin-top:4px}
+.prompt-link b{color:#34d399}
 .input-row{display:flex;gap:8px}
 input[type=text]{flex:1;background:#12141f;border:1.5px solid #2a2d3e;border-radius:10px;padding:10px 14px;font-family:'Be Vietnam Pro',sans-serif;font-size:15px;color:#e8e6ff;outline:none;transition:border-color .2s}
 input[type=text]:focus{border-color:#a78bfa}
@@ -74,14 +77,16 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .vote-btn:hover{border-color:#6b7280;color:#e8e6ff}
 .vote-btn.voted{border-color:#dc2626;color:#f87171;background:#1a0000}
 .vote-btn.reset-voted{border-color:#d97706;color:#fbbf24;background:#1c1600}
-.vote-bar{height:4px;background:#1e293b;border-radius:2px;margin-top:6px;overflow:hidden}
-.vote-fill{height:100%;border-radius:2px;transition:width .3s}
+
+/* rule hint box */
+.rule-hint{background:#12141f;border:1px dashed #2a2d3e;border-radius:10px;padding:10px 14px;font-size:12px;color:#6b7280;margin-top:10px;line-height:1.7}
+.rule-hint b{color:#a78bfa}
 </style>
 </head>
 <body>
 <div class="container">
   <h1>🔗 Nối Từ</h1>
-  <p class="subtitle">Wuyen beo siu mup siu cute :^hihi</p>
+  <p class="subtitle">Wuyen siu mup siu cute :^hihi</p>
   <div style="text-align:center;font-size:12px;color:#4b5563;margin-bottom:14px">
     <span class="cdot mid" id="cdot"></span><span id="ctext">Đang kết nối...</span>
   </div>
@@ -100,8 +105,24 @@ function mkState(){ return {players:{},chain:[],pendingWord:'',pendingFrom:'',cu
 function genId(){ return Math.random().toString(36).slice(2,9) }
 function nowStr(){ return new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
-function lc(w){ return (w||'').trim().split(' ').pop()[0]?.toLowerCase()||'' }
-function fc(w){ return (w||'').trim()[0]?.toLowerCase()||'' }
+
+// ── NEW LINKING RULE ──
+// "con cá" → last word = "cá"
+// next phrase must START with "cá": "cá chim" ✓
+// Returns the LAST WORD of a phrase (normalised, lowercase, no diacritics stripping — keep Vietnamese)
+function lastWord(phrase){
+  const parts = phrase.trim().split(/\s+/);
+  return parts[parts.length-1].toLowerCase();
+}
+// Returns the FIRST WORD of a phrase
+function firstWord(phrase){
+  const parts = phrase.trim().split(/\s+/);
+  return parts[0].toLowerCase();
+}
+// Required first word for next phrase given current phrase
+function requiredStart(phrase){
+  return lastWord(phrase);
+}
 
 function isTyping(){
   const el=document.activeElement;
@@ -121,12 +142,10 @@ async function apiGet(){
 }
 async function apiPut(patch, _retries=0){
   if(_retries > 4) throw new Error('Too many conflicts');
-  // Selalu ambil versi terbaru sebelum PUT untuk hindari konflik
   const base = _retries > 0 ? await apiGet() : state;
   const payload={...base,...patch, version:base.version};
   const r=await fetch(`${BACKEND_URL}?room=${ROOM}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(6000)});
   if(r.status===409){
-    // Conflict: fetch lại và retry với delay nhỏ
     state=await apiGet();
     await new Promise(res=>setTimeout(res, 100 + Math.random()*200));
     return apiPut(patch, _retries+1);
@@ -136,7 +155,7 @@ async function apiPut(patch, _retries=0){
   return state;
 }
 
-// ── Poll — KHÔNG render khi user đang gõ ──
+// ── Poll ──
 async function poll(){
   try{
     const newState=await apiGet();
@@ -144,11 +163,8 @@ async function poll(){
     const changed=newState.version!==state.version;
     state=newState;
     if(!myId) return;
-    if(!changed) return; // không có gì mới, bỏ qua
+    if(!changed) return;
     if(isTyping()){
-      // Có dữ liệu mới nhưng user đang gõ:
-      // Chỉ cập nhật phần không phải input (players, chain, score, log)
-      // bằng cách patch từng element riêng thay vì render lại toàn bộ
       patchNonInputAreas();
     } else {
       render();
@@ -156,16 +172,12 @@ async function poll(){
   } catch(e){ setConn(false); }
 }
 
-// Cập nhật các phần không ảnh hưởng đến input đang focus
 function patchNonInputAreas(){
-  // Chỉ update score nếu có element đó (người dùng đã join)
   const pl=players();
   for(const p of pl){
     const el=document.getElementById('score_'+p.id);
     if(el) el.textContent=(state.players[p.id]?.score)||0;
   }
-  // Update connection dot đã được setConn() xử lý rồi
-  // Không đụng vào input → focus được giữ nguyên
 }
 
 function startPoll(){ if(pollTimer) clearInterval(pollTimer); poll(); pollTimer=setInterval(poll,POLL); }
@@ -179,6 +191,24 @@ function players(){
 }
 function asker(){ const l=players(); return l[(state.askerIndex||0)%Math.max(1,l.length)]||null }
 function guesser(){ const l=players(); return l.length<2?null:l[((state.askerIndex||0)+1)%l.length] }
+
+// Render a chain phrase with the LINKING word highlighted
+// linkFrom = the word that linked FROM previous phrase (= firstWord of this phrase)
+// linkTo   = the word that will link TO next phrase (= lastWord of this phrase)
+function renderPhrase(phrase, highlightFirst, highlightLast, isLatest){
+  const words = phrase.trim().split(/\s+/);
+  let out = '';
+  for(let i=0;i<words.length;i++){
+    const w = esc(words[i]);
+    if((highlightFirst && i===0) || (highlightLast && i===words.length-1)){
+      out += `<span class="link-part">${w}</span>`;
+    } else {
+      out += w;
+    }
+    if(i<words.length-1) out += ' ';
+  }
+  return `<span class="chain-word ${isLatest?'latest':''}">${out}</span>`;
+}
 
 // ── Actions ──
 async function joinGame(name){
@@ -199,75 +229,49 @@ async function leaveGame(){
   document.getElementById('app').innerHTML=joinHtml();
 }
 
-async function resetGame(){
-  if(!confirm('Reset? Điểm về 0.')) return;
-  const ps={};
-  for(const id of Object.keys(state.players||{})) ps[id]={...state.players[id],score:0};
-  await doAction({players:ps,chain:[],pendingWord:'',pendingFrom:'',currentWord:'',askerIndex:0,log:[],votes:{}});
-}
-
 async function voteKick(targetId){
   if(!myId||targetId===myId) return;
-
-  // kick luôn, không cần vote
   const ps={...(state.players||{})}; delete ps[targetId];
   const ord=(state.askerOrder||[]).filter(id=>id!==targetId);
   let idx=state.askerIndex||0; if(idx>=ord.length&&ord.length>0) idx=0;
-
   const votes={...(state.votes||{})};
   delete votes['kick_'+targetId];
-
-  await doAction({
-    players:ps,
-    askerOrder:ord,
-    askerIndex:idx,
-    currentWord:'',
-    pendingWord:'',
-    pendingFrom:'',
-    votes
-  });
-
+  await doAction({players:ps,askerOrder:ord,askerIndex:idx,currentWord:'',pendingWord:'',pendingFrom:'',votes});
   setLocalStatus('🚫 Đã kick','success');
 }
 
 async function voteReset(){
   if(!myId) return;
-
-  // reset luôn
   const ps={};
-  for(const id of Object.keys(state.players||{})){
-    ps[id]={...state.players[id],score:0};
-  }
-
-  await doAction({
-    players:ps,
-    chain:[],
-    pendingWord:'',
-    pendingFrom:'',
-    currentWord:'',
-    askerIndex:0,
-    log:[],
-    votes:{}
-  });
-
+  for(const id of Object.keys(state.players||{})) ps[id]={...state.players[id],score:0};
+  await doAction({players:ps,chain:[],pendingWord:'',pendingFrom:'',currentWord:'',askerIndex:0,log:[],votes:{}});
   setLocalStatus('🔄 Đã reset game','success');
 }
 
 async function submitWord(word){
   const a=asker(); if(!a||a.id!==myId) return;
   const chain=state.chain||[];
-  if(chain.length){ const n=lc(chain[chain.length-1]); if(fc(word)!==n){ setLocalStatus(`⚠ Phải bắt đầu bằng "${n.toUpperCase()}"!`,'error'); return; } }
-  if(chain.includes(word)){ setLocalStatus('⚠ Từ đã dùng rồi!','error'); return; }
-  await doAction({currentWord:word.trim().toLowerCase()});
+  word = word.trim().toLowerCase();
+  if(chain.length){
+    const need = requiredStart(chain[chain.length-1]);
+    if(firstWord(word) !== need){
+      setLocalStatus(`⚠ Từ đầu tiên phải là "<b>${need}</b>"!`,'error'); return;
+    }
+  }
+  if(chain.includes(word)){ setLocalStatus('⚠ Cụm từ đã dùng rồi!','error'); return; }
+  await doAction({currentWord:word});
 }
 
 async function submitAnswer(word){
   const g=guesser(); if(!g||g.id!==myId) return;
   if(!state.currentWord) return;
-  const n=lc(state.currentWord);
-  if(fc(word)!==n){ setLocalStatus(`⚠ Phải bắt đầu bằng "${n.toUpperCase()}"!`,'error'); return; }
-  if((state.chain||[]).includes(word)){ setLocalStatus('⚠ Từ đã dùng rồi!','error'); return; }
-  await doAction({pendingWord:word.trim().toLowerCase(),pendingFrom:myId});
+  word = word.trim().toLowerCase();
+  const need = requiredStart(state.currentWord);
+  if(firstWord(word) !== need){
+    setLocalStatus(`⚠ Từ đầu tiên phải là "<b>${need}</b>"!`,'error'); return;
+  }
+  if((state.chain||[]).includes(word)){ setLocalStatus('⚠ Cụm từ đã dùng rồi!','error'); return; }
+  await doAction({pendingWord:word,pendingFrom:myId});
 }
 
 async function approveWord(ok){
@@ -277,7 +281,7 @@ async function approveWord(ok){
   const ps={...(state.players||{})};
   let chain=[...(state.chain||[])], log=[...(state.log||[])], idx=state.askerIndex||0;
   if(ok){
-    chain.push(state.currentWord,word);
+    chain.push(state.currentWord, word);
     if(g&&ps[g.id]) ps[g.id].score=(ps[g.id].score||0)+1;
     log.unshift({word,by:g?g.name:'?',ok:true,time:nowStr()});
     idx=(idx+1)%Math.max(1,(state.askerOrder||[]).length);
@@ -291,7 +295,7 @@ async function approveWord(ok){
 async function doAction(patch){
   try{
     await apiPut(patch);
-    render(); // sau action của mình thì luôn render full
+    render();
   }
   catch(e){ setLocalStatus('❌ Lỗi kết nối','error'); }
 }
@@ -302,7 +306,6 @@ function setLocalStatus(msg,type){
   renderStatusOnly();
 }
 
-// Chỉ update thanh status, không đụng input
 function renderStatusOnly(){
   const el=document.getElementById('localStatusBar');
   if(!el) return;
@@ -325,11 +328,12 @@ function render(){
   h+=`<div class="card"><div class="section-label">Người chơi (${pl.length})</div><div class="players-row">`;
   for(const p of pl){
     const me=p.id===myId, ak=a&&a.id===p.id;
-    h+=`<div class="player-badge"><div class="player-dot ${me?'dot-me':'dot-other'}"></div><span>${esc(p.name)}${me?' (bạn)':''}</span><span class="role-tag ${ak?'role-asker':'role-guesser'}">${ak?'🎯 Hỏi':'✏️ Đáp'}</span></div>`;
+    h+=`<div class="player-badge"><div class="player-dot ${me?'dot-me':'dot-other'}"></div><span>${esc(p.name)}${me?' (bạn)':''}</span><span class="role-tag ${ak?'role-asker':'role-guesser'}">${ak?'🎯 Ra từ':'✏️ Nối từ'}</span></div>`;
   }
   if(wait) h+=`<span style="font-size:12px;color:#4b5563;font-style:italic">Chờ bạn bè vào...</span>`;
   h+=`</div>`;
-  // Vote kick buttons — hiển thị cho người chơi khác
+
+  // Vote kick / reset
   if(!wait){
     const votes=state.votes||{};
     const needed=Math.ceil(pl.length/2);
@@ -339,70 +343,93 @@ function render(){
       const key='kick_'+p.id;
       const cnt=(votes[key]||[]).length;
       const iVoted=(votes[key]||[]).includes(myId);
-      h+=`<button class="vote-btn ${iVoted?'voted':''}" onclick="voteKick('${p.id}')">`;
-      h+=`${iVoted?'↩ Bỏ vote kick':'🚫 Kick'} ${esc(p.name)}`;
-      if(cnt>0) h+=` (${cnt}/${needed})`;
-      h+=`</button>`;
+      h+=`<button class="vote-btn ${iVoted?'voted':''}" onclick="voteKick('${p.id}')">🚫 Kick ${esc(p.name)}${cnt>0?` (${cnt}/${needed})`:''}</button>`;
     }
-    // Vote reset
     const rKey='reset', rCnt=(votes[rKey]||[]).length, iVotedR=(votes[rKey]||[]).includes(myId);
-    h+=`<button class="vote-btn ${iVotedR?'reset-voted':''}" onclick="voteReset()">`;
-    h+=`${iVotedR?'↩ Bỏ vote':'🔄 Vote reset'} phòng`;
-    if(rCnt>0) h+=` (${rCnt}/${needed})`;
-    h+=`</button>`;
+    h+=`<button class="vote-btn ${iVotedR?'reset-voted':''}" onclick="voteReset()">🔄 Reset phòng${rCnt>0?` (${rCnt}/${needed})`:''}</button>`;
     h+=`</div>`;
-    if(rCnt>0||pl.some(p=>p.id!==myId&&(votes['kick_'+p.id]||[]).length>0)){
-      h+=`<div class="vote-bar"><div class="vote-fill" style="width:${Math.round(Math.max(...pl.filter(p=>p.id!==myId).map(p=>(votes['kick_'+p.id]||[]).length), rCnt, 0)/needed*100)}%;background:#a78bfa"></div></div>`;
-    }
   }
-  if(wait) h+=`<div style="margin-top:12px;background:#12141f;border:1px dashed #2a2d3e;border-radius:10px;padding:10px 14px;font-size:12px;color:#6b7280">📎 Gửi link này cho bạn: <b style="color:#a78bfa;word-break:break-all">${esc(location.href)}</b></div>`;
+
+  if(wait){
+    h+=`<div style="margin-top:12px;background:#12141f;border:1px dashed #2a2d3e;border-radius:10px;padding:10px 14px;font-size:12px;color:#6b7280">📎 Gửi link này cho bạn: <b style="color:#a78bfa;word-break:break-all">${esc(location.href)}</b></div>`;
+
+  }
   h+=`</div>`;
 
   if(!wait){
     // Chain
-    h+=`<div class="card"><div class="section-label">Chuỗi từ (${chain.length})</div>`;
-    if(!chain.length){ h+=`<div class="chain-display"><span class="empty-chain">Chưa có từ nào...</span></div>`; }
+    h+=`<div class="card"><div class="section-label">Chuỗi từ (${chain.length} cụm)</div>`;
+    if(!chain.length){ h+=`<div class="chain-display"><span class="empty-chain">Chưa có từ nào... P1 hãy ra từ đầu tiên!</span></div>`; }
     else {
       h+=`<div class="chain-display">`;
-      const st=Math.max(0,chain.length-10);
-      if(st>0) h+=`<span style="color:#374151;font-size:12px">...${st} từ trước</span><span class="chain-arrow">→</span>`;
+      const st=Math.max(0,chain.length-8);
+      if(st>0) h+=`<span style="color:#374151;font-size:12px">...${st} cụm trước</span><span class="chain-arrow">→</span>`;
       for(let i=st;i<chain.length;i++){
         if(i>st) h+=`<span class="chain-arrow">→</span>`;
-        h+=`<span class="chain-word ${i===chain.length-1?'latest':''}">${esc(chain[i])}</span>`;
+        const isLatest=(i===chain.length-1);
+        const hlFirst=(i>0); // highlight linking word at start (not for very first)
+        const hlLast=(!isLatest); // highlight last word that will be used as bridge (not for the pending-answer one)
+        h+=renderPhrase(chain[i], hlFirst, !isLatest, isLatest);
       }
       h+=`</div>`;
     }
     h+=`</div>`;
 
-    // Action card — input nằm ở đây, được bảo vệ khỏi poll
+    // Action card
     h+=`<div class="card" id="actionCard">`;
-    if(!state.currentWord&&isA){
-      const nc=chain.length?lc(chain[chain.length-1]).toUpperCase():'';
-      h+=`<div class="section-label">Lượt của bạn — Đưa từ để thách</div>`;
-      h+=`<div class="input-row"><input type="text" id="wordInput" placeholder="${nc?'Từ bắt đầu bằng '+nc+'...':'Nhập từ đầu tiên...'}" autocomplete="off"/><button onclick="handleWord()">Đưa từ →</button></div>`;
-      if(nc) h+=`<div style="font-size:12px;color:#4b5563;margin-top:8px">Từ cuối kết thúc bằng "<b style="color:#a78bfa">${nc}</b>", từ bạn đưa phải bắt đầu bằng chữ đó</div>`;
-    } else if(!state.currentWord&&!isA){
-      h+=`<div class="status-bar info"><span>⏳ Chờ ${a?esc(a.name):'...'} đưa từ...</span></div>`;
-    } else if(state.currentWord&&!state.pendingWord){
+
+    // ── ASKER: no currentWord yet → ra từ ──
+    if(!state.currentWord && isA){
+      const latestPhrase = chain.length ? chain[chain.length-1] : null;
+      const need = latestPhrase ? requiredStart(latestPhrase) : null;
+      h+=`<div class="section-label">Lượt của bạn — Ra cụm từ để thách</div>`;
+      h+=`<div class="input-row"><input type="text" id="wordInput" placeholder="${need?`Cụm từ bắt đầu bằng "${need}"...`:'Nhập cụm từ đầu tiên...'}" autocomplete="off"/><button onclick="handleWord()">Ra từ →</button></div>`;
+      if(need) h+=`<div style="font-size:12px;color:#4b5563;margin-top:8px">Từ cuối cụm trước là "<b style="color:#34d399">${esc(need)}</b>" — cụm bạn ra phải bắt đầu bằng từ đó</div>`;
+    }
+
+    // ── WAIT: waiting for asker ──
+    else if(!state.currentWord && !isA){
+      h+=`<div class="status-bar info"><span>⏳ Chờ ${a?esc(a.name):'...'} ra từ...</span></div>`;
+    }
+
+    // ── GUESSER: has currentWord, no pending yet → nối từ ──
+    else if(state.currentWord && !state.pendingWord){
+      const need = requiredStart(state.currentWord);
       if(isG){
-        h+=`<div class="current-prompt"><div class="prompt-label">Từ cần nối</div><div class="prompt-word">${esc(state.currentWord.toUpperCase())}</div><div class="prompt-hint">Nối bằng từ bắt đầu bằng "<b>${lc(state.currentWord).toUpperCase()}</b>"</div></div>`;
-        h+=`<div class="input-row"><input type="text" id="ansInput" placeholder="Từ bắt đầu bằng ${lc(state.currentWord).toUpperCase()}..." autocomplete="off"/><button onclick="handleAns()">Gửi →</button></div>`;
+        h+=`<div class="current-prompt">`;
+        h+=`<div class="prompt-label">Cụm từ cần nối</div>`;
+        h+=`<div class="prompt-word">${esc(state.currentWord)}</div>`;
+        h+=`<div class="prompt-link">Nối bằng cụm từ bắt đầu bằng "<b>${esc(need)}</b>"</div>`;
+        h+=`</div>`;
+        h+=`<div class="input-row"><input type="text" id="ansInput" placeholder='Cụm từ bắt đầu bằng "${esc(need)}"...' autocomplete="off"/><button onclick="handleAns()">Gửi →</button></div>`;
       } else if(isA){
-        h+=`<div class="current-prompt"><div class="prompt-label">Bạn đã đưa từ</div><div class="prompt-word">${esc(state.currentWord.toUpperCase())}</div><div class="prompt-hint">Chờ ${g?esc(g.name):'...'} trả lời...</div></div>`;
-        h+=`<div class="status-bar"><div class="spinner"></div><span>Đang chờ trả lời...</span></div>`;
-      }
-    } else if(state.pendingWord){
-      if(isA){
-        h+=`<div class="approval-box"><div style="font-size:12px;color:#92400e;margin-bottom:4px">Câu trả lời từ ${g?esc(g.name):'...'}</div><div class="approval-word">${esc(state.currentWord.toUpperCase())} → ${esc(state.pendingWord.toUpperCase())}</div><div class="approval-sub">Từ "<b>${esc(state.pendingWord)}</b>" có hợp lệ không?</div><div class="approval-actions"><button class="btn-approve" onclick="approveWord(true)">✓ Đồng ý</button><button class="btn-reject" onclick="approveWord(false)">✗ Không hợp lệ</button></div></div>`;
-      } else {
-        h+=`<div class="status-bar pending"><div class="spinner"></div><span>Chờ ${a?esc(a.name):'...'} duyệt từ "<b>${esc(state.pendingWord)}</b>"...</span></div>`;
+        h+=`<div class="current-prompt">`;
+        h+=`<div class="prompt-label">Bạn đã ra từ</div>`;
+        h+=`<div class="prompt-word">${esc(state.currentWord)}</div>`;
+        h+=`<div class="prompt-link">Chờ <b>${g?esc(g.name):'...'}</b> nối bằng cụm bắt đầu "<b>${esc(requiredStart(state.currentWord))}</b>"...</div>`;
+        h+=`</div>`;
+        h+=`<div class="status-bar"><div class="spinner"></div><span>Đang chờ câu trả lời...</span></div>`;
       }
     }
-    // Vùng status riêng — update độc lập, không đụng input
+
+    // ── APPROVAL: pending answer waiting for asker ──
+    else if(state.pendingWord){
+      if(isA){
+        h+=`<div class="approval-box">`;
+        h+=`<div style="font-size:12px;color:#92400e;margin-bottom:4px">Câu trả lời từ ${g?esc(g.name):'...'}</div>`;
+        h+=`<div class="approval-word">${esc(state.currentWord)} <span style="color:#6b7280">→</span> ${esc(state.pendingWord)}</div>`;
+        h+=`<div class="approval-sub">Cụm từ "<b>${esc(state.pendingWord)}</b>" có hợp lệ không?</div>`;
+        h+=`<div class="approval-actions"><button class="btn-approve" onclick="approveWord(true)">✓ Hợp lệ</button><button class="btn-reject" onclick="approveWord(false)">✗ Không hợp lệ</button></div>`;
+        h+=`</div>`;
+      } else {
+        h+=`<div class="status-bar pending"><div class="spinner"></div><span>Chờ ${a?esc(a.name):'...'} duyệt "<b>${esc(state.pendingWord)}</b>"...</span></div>`;
+      }
+    }
+
     h+=`<div id="localStatusBar">${localStatus?`<div class="status-bar ${localStatus.type}" style="margin-top:10px">${localStatus.msg}</div>`:''}</div>`;
     h+=`</div>`;
 
-    // Score — mỗi số có id riêng để patch không cần render lại
+    // Score
     h+=`<div class="card"><div class="section-label">Điểm số</div><div class="score-row">`;
     for(const p of pl) h+=`<div class="score-card"><div class="score-num" id="score_${p.id}">${(state.players[p.id]?.score)||0}</div><div class="score-lbl">${esc(p.name)}</div></div>`;
     h+=`</div></div>`;
@@ -421,7 +448,7 @@ function render(){
 }
 
 function joinHtml(){
-  return `<div class="card"><div class="section-label">Nhập tên của bạn</div><div class="join-form"><input type="text" id="nameInput" placeholder="Tên hiển thị..." maxlength="20" autocomplete="off"/><button onclick="handleJoin()">Vào chơi →</button></div><div style="text-align:center;font-size:13px;color:#4b5563;margin-top:14px">Wuyen beo siu mup siu cute :^hihi</div></div>`;
+  return `<div class="card"><div class="section-label">Nhập tên của bạn</div><div class="join-form"><input type="text" id="nameInput" placeholder="Tên hiển thị..." maxlength="20" autocomplete="off"/><button onclick="handleJoin()">Vào chơi →</button></div></div>`;
 }
 
 function handleJoin(){ const n=document.getElementById('nameInput')?.value.trim(); if(n) joinGame(n); }
@@ -435,7 +462,6 @@ document.addEventListener('keydown',e=>{
   else if(document.activeElement===w) handleWord();
   else if(document.activeElement===a) handleAns();
 });
-
 
 document.getElementById('app').innerHTML=joinHtml();
 startPoll();
