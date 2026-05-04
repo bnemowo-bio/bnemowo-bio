@@ -96,8 +96,8 @@ let myId='', myName='';
 let state=mkState(), localStatus=null, localTimer=null, pollTimer=null, heartTimer=null;
 let lastRenderedVersion=-1;
 const POLL=1300;
-const HEARTBEAT_MS=4000;  // gửi heartbeat mỗi 4 giây
-const TIMEOUT_MS=12000;   // kick nếu không gửi heartbeat trong 12 giây
+const HEARTBEAT_MS=6000;  // gửi heartbeat mỗi 6 giây
+const TIMEOUT_MS=20000;   // kick nếu không gửi heartbeat trong 20 giây
 
 function mkState(){ return {players:{},chain:[],pendingWord:'',pendingFrom:'',currentWord:'',askerOrder:[],askerIndex:0,log:[],lastActivity:0,version:0,votes:{}} }
 function genId(){ return Math.random().toString(36).slice(2,9) }
@@ -122,10 +122,18 @@ async function apiGet(){
   if(!r.ok) throw new Error(r.status);
   return r.json();
 }
-async function apiPut(patch){
-  const payload={...state,...patch,version:state.version};
+async function apiPut(patch, _retries=0){
+  if(_retries > 4) throw new Error('Too many conflicts');
+  // Selalu ambil versi terbaru sebelum PUT untuk hindari konflik
+  const base = _retries > 0 ? await apiGet() : state;
+  const payload={...base,...patch, version:base.version};
   const r=await fetch(`${BACKEND_URL}?room=${ROOM}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(6000)});
-  if(r.status===409){ state=await apiGet(); return apiPut(patch); }
+  if(r.status===409){
+    // Conflict: fetch lại và retry với delay nhỏ
+    state=await apiGet();
+    await new Promise(res=>setTimeout(res, 100 + Math.random()*200));
+    return apiPut(patch, _retries+1);
+  }
   if(!r.ok) throw new Error(r.status);
   state=await r.json();
   return state;
@@ -165,35 +173,59 @@ function patchNonInputAreas(){
 
 function startHeartbeat(){
   if(heartTimer) clearInterval(heartTimer);
-  // Gửi heartbeat ngay và mỗi HEARTBEAT_MS
-  sendHeartbeat();
-  heartTimer=setInterval(sendHeartbeat, HEARTBEAT_MS);
+  // Delay ngẫu nhiên để tránh 2 người cùng PUT một lúc
+  const jitter = Math.random() * 2000;
+  setTimeout(()=>{
+    sendHeartbeat();
+    heartTimer = setInterval(sendHeartbeat, HEARTBEAT_MS);
+  }, jitter);
 }
 
 async function sendHeartbeat(){
   if(!myId) return;
   try{
-    const ps={...(state.players||{})};
-    if(!ps[myId]) return;
-    ps[myId]={...ps[myId], lastSeen:Date.now()};
-    // Đồng thời dọn dẹp người chơi đã "chết"
-    const now=Date.now();
-    let changed=false;
-    const ord=[...(state.askerOrder||[])];
-    for(const id of Object.keys(ps)){
-      if(id===myId) continue;
-      const seen=ps[id].lastSeen||0;
-      if(now-seen>TIMEOUT_MS){
-        delete ps[id];
-        const i=ord.indexOf(id);
-        if(i>=0) ord.splice(i,1);
-        changed=true;
+    // Fetch state mới nhất từ server (tránh dùng state cũ ghi đè)
+    const fresh = await apiGet();
+
+    // Cập nhật lastSeen của mình trong state mới nhất
+    if(!fresh.players[myId]) return; // mình đã bị kick
+    fresh.players[myId] = {...fresh.players[myId], lastSeen: Date.now()};
+
+    // Dọn người "chết" dựa trên state mới nhất
+    const now = Date.now();
+    let changed = false;
+    const ord = [...(fresh.askerOrder||[])];
+    for(const id of Object.keys(fresh.players)){
+      if(id === myId) continue;
+      const seen = fresh.players[id].lastSeen || 0;
+      if(now - seen > TIMEOUT_MS){
+        delete fresh.players[id];
+        const i = ord.indexOf(id);
+        if(i >= 0) ord.splice(i, 1);
+        changed = true;
       }
     }
-    // Chỉ PUT nếu có người chết hoặc cần update lastSeen mình
-    let idx=state.askerIndex||0;
-    if(changed && idx>=ord.length && ord.length>0) idx=0;
-    await apiPut({players:ps, askerOrder:ord, askerIndex:idx});
+
+    let idx = fresh.askerIndex || 0;
+    if(changed && idx >= ord.length && ord.length > 0) idx = 0;
+
+    // PUT với version của fresh state (không dùng state local cũ)
+    const payload = {...fresh, players: fresh.players, askerOrder: ord, askerIndex: idx};
+    const r = await fetch(`${BACKEND_URL}?room=${ROOM}`, {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(6000)
+    });
+    if(r.ok) state = await r.json();
+    if(myId && !state.players[myId]) {
+      // Mình bị kick bởi người khác
+      myId=''; myName=''; clearInterval(pollTimer); clearInterval(heartTimer);
+      document.getElementById('app').innerHTML=joinHtml();
+      setConn(false,'Bạn đã bị kick khỏi phòng');
+      return;
+    }
+    if(changed) render();
   } catch{}
 }
 
