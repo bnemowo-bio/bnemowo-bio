@@ -69,38 +69,25 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .cdot.ok{background:#34d399;box-shadow:0 0 5px #34d39966}
 .cdot.bad{background:#f87171;box-shadow:0 0 5px #f8717166}
 .cdot.mid{background:#fbbf24}
-.setup-box{background:#131a2e;border:1px solid #1e3a5f;border-radius:12px;padding:16px;margin-bottom:14px;font-size:13px;line-height:1.7}
-.setup-box code{background:#0d1117;padding:2px 6px;border-radius:4px;font-size:12px;color:#60a5fa;font-family:monospace}
-.setup-box ol{padding-left:18px;color:#9ca3af}
-.setup-box li{margin-bottom:6px}
 </style>
 </head>
 <body>
 <div class="container">
   <h1>🔗 Nối Từ</h1>
-  <p class="subtitle">Wuyen beo siu mup siu cute :^hihi</p>
-
-  <!-- Thanh trạng thái kết nối -->
+  <p class="subtitle">Wuyen siu mup siu cute :^hihi</p>
   <div style="text-align:center;font-size:12px;color:#4b5563;margin-bottom:14px">
     <span class="cdot mid" id="cdot"></span><span id="ctext">Đang kết nối...</span>
   </div>
-
   <div id="app"></div>
 </div>
 
 <script>
-// ╔══════════════════════════════════════════════╗
-// ║  CẤU HÌNH — sửa BACKEND_URL sau khi deploy  ║
-// ╚══════════════════════════════════════════════╝
 const BACKEND_URL = 'https://noituvoiwuyenmup.baonam04012010.workers.dev/';
-// Ví dụ: 'https://noitu-sync.ten-ban.workers.dev'
-
-// Lấy tên phòng từ URL hash: game.html#wuyen
 const ROOM = (location.hash.replace('#','').trim()||'main').replace(/[^a-z0-9_-]/gi,'').slice(0,20)||'main';
 
-// ══════════════════════════════════════════════
 let myId='', myName='';
 let state=mkState(), localStatus=null, localTimer=null, pollTimer=null;
+let lastRenderedVersion=-1; // track version đã render để tránh render thừa
 const POLL=1300;
 
 function mkState(){ return {players:{},chain:[],pendingWord:'',pendingFrom:'',currentWord:'',askerOrder:[],askerIndex:0,log:[],lastActivity:0,version:0} }
@@ -109,6 +96,11 @@ function nowStr(){ return new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
 function lc(w){ return (w||'').trim().split(' ').pop()[0]?.toLowerCase()||'' }
 function fc(w){ return (w||'').trim()[0]?.toLowerCase()||'' }
+
+function isTyping(){
+  const el=document.activeElement;
+  return el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA');
+}
 
 function setConn(ok,msg){
   document.getElementById('cdot').className='cdot '+(ok?'ok':ok===null?'mid':'bad');
@@ -130,13 +122,42 @@ async function apiPut(patch){
   return state;
 }
 
+// ── Poll — KHÔNG render khi user đang gõ ──
 async function poll(){
-  try{ state=await apiGet(); setConn(true); if(myId) render(); } catch(e){ setConn(false); }
+  try{
+    const newState=await apiGet();
+    setConn(true);
+    const changed=newState.version!==state.version;
+    state=newState;
+    if(!myId) return;
+    if(!changed) return; // không có gì mới, bỏ qua
+    if(isTyping()){
+      // Có dữ liệu mới nhưng user đang gõ:
+      // Chỉ cập nhật phần không phải input (players, chain, score, log)
+      // bằng cách patch từng element riêng thay vì render lại toàn bộ
+      patchNonInputAreas();
+    } else {
+      render();
+    }
+  } catch(e){ setConn(false); }
 }
+
+// Cập nhật các phần không ảnh hưởng đến input đang focus
+function patchNonInputAreas(){
+  // Chỉ update score nếu có element đó (người dùng đã join)
+  const pl=players();
+  for(const p of pl){
+    const el=document.getElementById('score_'+p.id);
+    if(el) el.textContent=(state.players[p.id]?.score)||0;
+  }
+  // Update connection dot đã được setConn() xử lý rồi
+  // Không đụng vào input → focus được giữ nguyên
+}
+
 function startPoll(){ if(pollTimer) clearInterval(pollTimer); poll(); pollTimer=setInterval(poll,POLL); }
 
 // ── Helpers ──
-function players(){ 
+function players(){
   const ord=state.askerOrder||[], ps=state.players||{}, res=[];
   for(const id of ord) if(ps[id]) res.push({id,...ps[id]});
   for(const id of Object.keys(ps)) if(!res.find(p=>p.id===id)) res.push({id,...ps[id]});
@@ -151,7 +172,7 @@ async function joinGame(name){
   const ps={...(state.players||{})}; ps[myId]={name,score:0,joinedAt:Date.now()};
   const ord=[...(state.askerOrder||[])]; if(!ord.includes(myId)) ord.push(myId);
   try{ await apiPut({players:ps,askerOrder:ord}); render(); startPoll(); }
-  catch(e){ setLocalStatus('❌ Không kết nối được backend. Xem hướng dẫn setup.','error'); renderSetup(); }
+  catch(e){ setLocalStatus('❌ Không kết nối được backend.','error'); }
 }
 
 async function leaveGame(){
@@ -207,14 +228,28 @@ async function approveWord(ok){
 }
 
 async function doAction(patch){
-  try{ await apiPut(patch); render(); }
+  try{
+    await apiPut(patch);
+    render(); // sau action của mình thì luôn render full
+  }
   catch(e){ setLocalStatus('❌ Lỗi kết nối','error'); }
 }
 
 function setLocalStatus(msg,type){
   localStatus={msg,type}; clearTimeout(localTimer);
-  localTimer=setTimeout(()=>{localStatus=null;render()},3500);
-  render();
+  localTimer=setTimeout(()=>{localStatus=null;renderStatusOnly()},3500);
+  renderStatusOnly();
+}
+
+// Chỉ update thanh status, không đụng input
+function renderStatusOnly(){
+  const el=document.getElementById('localStatusBar');
+  if(!el) return;
+  if(localStatus){
+    el.innerHTML=`<div class="status-bar ${localStatus.type}" style="margin-top:10px">${localStatus.msg}</div>`;
+  } else {
+    el.innerHTML='';
+  }
 }
 
 // ── Render ──
@@ -252,8 +287,8 @@ function render(){
     }
     h+=`</div>`;
 
-    // Action card
-    h+=`<div class="card">`;
+    // Action card — input nằm ở đây, được bảo vệ khỏi poll
+    h+=`<div class="card" id="actionCard">`;
     if(!state.currentWord&&isA){
       const nc=chain.length?lc(chain[chain.length-1]).toUpperCase():'';
       h+=`<div class="section-label">Lượt của bạn — Đưa từ để thách</div>`;
@@ -276,12 +311,13 @@ function render(){
         h+=`<div class="status-bar pending"><div class="spinner"></div><span>Chờ ${a?esc(a.name):'...'} duyệt từ "<b>${esc(state.pendingWord)}</b>"...</span></div>`;
       }
     }
-    if(localStatus) h+=`<div class="status-bar ${localStatus.type}" style="margin-top:10px">${localStatus.msg}</div>`;
+    // Vùng status riêng — update độc lập, không đụng input
+    h+=`<div id="localStatusBar">${localStatus?`<div class="status-bar ${localStatus.type}" style="margin-top:10px">${localStatus.msg}</div>`:''}</div>`;
     h+=`</div>`;
 
-    // Score
+    // Score — mỗi số có id riêng để patch không cần render lại
     h+=`<div class="card"><div class="section-label">Điểm số</div><div class="score-row">`;
-    for(const p of pl) h+=`<div class="score-card"><div class="score-num">${(state.players[p.id]?.score)||0}</div><div class="score-lbl">${esc(p.name)}</div></div>`;
+    for(const p of pl) h+=`<div class="score-card"><div class="score-num" id="score_${p.id}">${(state.players[p.id]?.score)||0}</div><div class="score-lbl">${esc(p.name)}</div></div>`;
     h+=`</div></div>`;
 
     // Log
@@ -298,23 +334,7 @@ function render(){
 }
 
 function joinHtml(){
-  return `<div class="card"><div class="section-label">Nhập tên của bạn</div><div class="join-form"><input type="text" id="nameInput" placeholder="Tên hiển thị..." maxlength="20" autocomplete="off"/><button onclick="handleJoin()">Vào chơi →</button></div><div style="text-align:center;font-size:13px;color:#4b5563;margin-top:14px">Wuyen beo siu mup siu cute :^hihi</div></div>`;
-}
-
-function renderSetup(){
-  document.getElementById('app').innerHTML=`
-  <div class="setup-box">
-    <div style="color:#f87171;font-weight:600;margin-bottom:10px">⚠️ Chưa có backend — cần setup 1 lần</div>
-    <ol>
-      <li>Vào <a href="https://dash.cloudflare.com" target="_blank" style="color:#60a5fa">dash.cloudflare.com</a> → Workers & Pages → Create Worker</li>
-      <li>Xóa code mẫu, paste code từ file <code>worker.js</code> vào</li>
-      <li>Bấm <b>Deploy</b> → copy URL worker (vd: <code>https://noitu-sync.ten.workers.dev</code>)</li>
-      <li>Vào KV → Create namespace tên <code>GAME_KV</code> → vào worker Settings → Bindings → thêm KV binding tên <code>GAME_KV</code></li>
-      <li>Mở file <code>index.html</code>, sửa dòng <code>BACKEND_URL</code> thành URL worker của bạn</li>
-    </ol>
-    <div style="margin-top:12px;color:#6b7280;font-size:12px">Xem file <code>HUONG_DAN.md</code> đi kèm để biết chi tiết hơn</div>
-  </div>
-  <div class="card"><div class="join-form"><input type="text" id="nameInput" placeholder="Tên hiển thị..." maxlength="20" autocomplete="off"/><button onclick="handleJoin()">Thử lại →</button></div></div>`;
+  return `<div class="card"><div class="section-label">Nhập tên của bạn</div><div class="join-form"><input type="text" id="nameInput" placeholder="Tên hiển thị..." maxlength="20" autocomplete="off"/><button onclick="handleJoin()">Vào chơi →</button></div><div style="text-align:center;font-size:13px;color:#4b5563;margin-top:14px">Wuyen siu mup siu cute :^hihi</div></div>`;
 }
 
 function handleJoin(){ const n=document.getElementById('nameInput')?.value.trim(); if(n) joinGame(n); }
@@ -324,31 +344,15 @@ function handleAns(){ const w=document.getElementById('ansInput')?.value.trim().
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter') return;
   const n=document.getElementById('nameInput'), w=document.getElementById('wordInput'), a=document.getElementById('ansInput');
-  if(n) handleJoin(); else if(w) handleWord(); else if(a) handleAns();
+  if(document.activeElement===n) handleJoin();
+  else if(document.activeElement===w) handleWord();
+  else if(document.activeElement===a) handleAns();
 });
 
 window.addEventListener('beforeunload',()=>{ if(myId) leaveGame(); });
 
-// Khởi động
 document.getElementById('app').innerHTML=joinHtml();
-
-// Kiểm tra xem BACKEND_URL đã được cấu hình chưa
-if(BACKEND_URL==='https://noituvoiwuyenmup.baonam04012010.workers.dev/'){
-  setConn(false,'⚠️ Chưa cấu hình backend');
-  document.getElementById('app').innerHTML=`<div class="setup-box">
-    <div style="color:#fbbf24;font-weight:600;margin-bottom:10px">⚙️ Cần setup backend 1 lần (5 phút)</div>
-    <ol>
-      <li>Vào <a href="https://dash.cloudflare.com" target="_blank" style="color:#60a5fa">dash.cloudflare.com</a> → <b>Workers & Pages</b> → <b>Create Worker</b></li>
-      <li>Xóa code mẫu → paste toàn bộ code trong file <code>worker.js</code> → bấm <b>Deploy</b></li>
-      <li>Vào worker vừa tạo → <b>Settings</b> → <b>Bindings</b> → Add → <b>KV Namespace</b><br>Variable name: <code>GAME_KV</code> → tạo namespace mới tên <code>GAME_KV</code></li>
-      <li>Copy URL worker (vd: <code>https://noitu-sync.ten.workers.dev</code>)</li>
-      <li>Mở <code>index.html</code>, tìm dòng <code>REPLACE_WITH_YOUR_WORKER_URL</code>, thay bằng URL đó</li>
-      <li>Upload <code>index.html</code> lên GitHub lại là xong!</li>
-    </ol>
-  </div>`;
-} else {
-  startPoll();
-}
+startPoll();
 </script>
 </body>
 </html>
