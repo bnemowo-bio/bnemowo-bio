@@ -15,19 +15,19 @@ h1{font-family:'Baloo 2',cursive;font-weight:800;font-size:2rem;background:linea
 .section-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;margin-bottom:10px}
 .players-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .player-badge{display:flex;align-items:center;gap:7px;background:#12141f;border:1px solid #2a2d3e;border-radius:20px;padding:6px 12px;font-size:13px;font-weight:500}
-.player-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:#60a5fa;box-shadow:0 0 6px #60a5fa88}
-.dot-me{background:#a78bfa !important;box-shadow:0 0 6px #a78bfa88 !important}
-.ready-badge{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:600;background:#0a2e1a;color:#34d399;border:1px solid #0f4a28}
-.waiting-badge{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:600;background:#1c1400;color:#fbbf24;border:1px solid #3a2800}
+.player-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-me{background:#a78bfa;box-shadow:0 0 6px #a78bfa88}
+.dot-other{background:#60a5fa;box-shadow:0 0 6px #60a5fa88}
+.role-tag{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:600}
+.role-asker{background:#1e1433;color:#a78bfa;border:1px solid #3d2a72}
+.role-guesser{background:#0e1e33;color:#60a5fa;border:1px solid #1a3a6e}
 .chain-display{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;align-items:center}
 .chain-word{background:#12141f;border:1px solid #2a2d3e;border-radius:20px;padding:5px 13px;font-size:13px;font-weight:500;color:#d1d5db}
 .chain-word.latest{border-color:#a78bfa;color:#c4b5fd;background:#1a1433}
-.chain-word.start{border-color:#34d399;color:#6ee7b7;background:#001a0e}
 .chain-arrow{color:#374151;font-size:14px}
 .current-prompt{background:#131a2e;border:1px solid #1e3a5f;border-radius:12px;padding:16px 18px;margin-bottom:14px}
 .prompt-label{font-size:11px;color:#60a5fa;font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
 .prompt-word{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;color:#93c5fd;letter-spacing:1px}
-.prompt-connect{font-size:13px;color:#a78bfa;margin-top:6px;font-weight:600}
 .prompt-hint{font-size:12px;color:#4b5563;margin-top:4px}
 .input-row{display:flex;gap:8px}
 input[type=text]{flex:1;background:#12141f;border:1.5px solid #2a2d3e;border-radius:10px;padding:10px 14px;font-family:'Be Vietnam Pro',sans-serif;font-size:15px;color:#e8e6ff;outline:none;transition:border-color .2s}
@@ -39,10 +39,6 @@ button:active:not(:disabled){transform:translateY(0)}
 button:disabled{opacity:.4;cursor:not-allowed}
 .btn-approve{background:linear-gradient(135deg,#059669,#10b981);padding:8px 16px;font-size:13px}
 .btn-reject{background:linear-gradient(135deg,#dc2626,#ef4444);padding:8px 16px;font-size:13px}
-.btn-surrender{background:#1a1d27;border:1px solid #d97706;color:#fbbf24;padding:8px 16px;font-size:13px}
-.btn-surrender:hover:not(:disabled){background:#1c1400;transform:none}
-.btn-ready{background:linear-gradient(135deg,#059669,#10b981);width:100%;padding:12px;font-size:15px}
-.btn-unready{background:linear-gradient(135deg,#dc2626,#ef4444);width:100%;padding:12px;font-size:15px}
 .btn-secondary{background:#1a1d27;border:1px solid #2a2d3e;color:#9ca3af;font-size:13px;padding:8px 14px}
 .btn-secondary:hover:not(:disabled){background:#22253a;transform:none}
 .status-bar{background:#12141f;border:1px solid #2a2d3e;border-radius:10px;padding:10px 14px;font-size:13px;color:#9ca3af;display:flex;align-items:center;gap:8px;min-height:42px}
@@ -55,32 +51,31 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .approval-box{background:#1c1400;border:1px solid #d97706;border-radius:12px;padding:14px 16px}
 .approval-word{font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:700;color:#fbbf24;margin-bottom:6px}
 .approval-sub{font-size:12px;color:#92400e;margin-bottom:12px}
-.approval-actions{display:flex;gap:8px;flex-wrap:wrap}
+.approval-actions{display:flex;gap:8px}
 .log-list{display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto}
 .log-item{font-size:12px;color:#6b7280;padding:3px 0;display:flex;gap:8px;align-items:baseline}
-.log-who{font-weight:600;color:#9ca3af;min-width:60px}
+.log-who{font-weight:600;color:#9ca3af;min-width:70px}
 .log-word{color:#c4b5fd}
 .log-badge{font-size:10px;padding:1px 6px;border-radius:6px;font-weight:600}
 .badge-ok{background:#0a2e1a;color:#34d399}
 .badge-no{background:#2e0a0a;color:#f87171}
-.badge-sur{background:#1c1400;color:#fbbf24}
 .join-form{display:flex;flex-direction:column;gap:12px}
+.empty-chain{color:#374151;font-size:13px;font-style:italic}
 .score-row{display:flex;gap:8px;flex-wrap:wrap}
 .score-card{background:#12141f;border:1px solid #2a2d3e;border-radius:10px;padding:8px 14px;font-size:12px;text-align:center;flex:1;min-width:80px}
 .score-num{font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:700;color:#a78bfa;line-height:1;margin-bottom:2px}
 .score-lbl{color:#4b5563;font-size:11px}
 .cdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle}
 .cdot.ok{background:#34d399;box-shadow:0 0 5px #34d39966}
-.cdot.bad{background:#f87171}
+.cdot.bad{background:#f87171;box-shadow:0 0 5px #f8717166}
 .cdot.mid{background:#fbbf24}
 .vote-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .vote-btn{background:#12141f;border:1px solid #2a2d3e;border-radius:8px;padding:5px 12px;font-size:12px;color:#9ca3af;cursor:pointer;transition:all .2s;font-family:'Be Vietnam Pro',sans-serif}
 .vote-btn:hover{border-color:#6b7280;color:#e8e6ff}
 .vote-btn.voted{border-color:#dc2626;color:#f87171;background:#1a0000}
 .vote-btn.reset-voted{border-color:#d97706;color:#fbbf24;background:#1c1600}
-.chip{display:inline-block;background:#1a1433;border:1.5px solid #a78bfa;border-radius:8px;padding:2px 10px;font-weight:700;color:#c4b5fd;font-size:14px}
-.rules-box{font-size:13px;color:#6b7280;line-height:1.9}
-.rules-box .eg{color:#9ca3af}
+.vote-bar{height:4px;background:#1e293b;border-radius:2px;margin-top:6px;overflow:hidden}
+.vote-fill{height:100%;border-radius:2px;transition:width .3s}
 </style>
 </head>
 <body>
@@ -97,346 +92,318 @@ button:disabled{opacity:.4;cursor:not-allowed}
 const BACKEND_URL = 'https://noituvoiwuyenmup.baonam04012010.workers.dev/';
 const ROOM = (location.hash.replace('#','').trim()||'main').replace(/[^a-z0-9_-]/gi,'').slice(0,20)||'main';
 
-const START_WORDS = [
-  'con mèo','con chó','hoa hồng','trái tim','bầu trời','dòng sông',
-  'ngọn núi','cánh đồng','mặt trời','ánh sáng','tình yêu','gia đình',
-  'quê hương','bạn bè','niềm vui','ước mơ','cuộc đời','con người',
-  'học sinh','giáo viên','bông hoa','cây xanh','biển cả','đất nước',
-  'con bướm','hoa lan','chim hót','cá vàng','gió thổi','mây trắng'
-];
-
-// Âm tiết cuối của cụm từ
-function lastSyl(s){ return (s||'').trim().split(/\s+/).pop().toLowerCase(); }
-// Âm tiết đầu của cụm từ
-function firstSyl(s){ return (s||'').trim().split(/\s+/)[0].toLowerCase(); }
-
 let myId='', myName='';
 let state=mkState(), localStatus=null, localTimer=null, pollTimer=null;
+let lastRenderedVersion=-1;
 const POLL=1300;
-
-function mkState(){
-  return {
-    players:{}, askerOrder:[], version:0,
-    phase:'lobby',   // 'lobby' | 'playing'
-    ready:{},
-    currentWord:'',  // từ đang cần nối (2 âm tiết)
-    chain:[],        // toàn bộ chuỗi từ đã duyệt
-    pendingWord:'',  // từ đang chờ duyệt
-    pendingFrom:'',
-    noterIndex:0,    // index người đang nối
-    log:[], votes:{}
-  };
-}
-
+function mkState(){ return {players:{},chain:[],pendingWord:'',pendingFrom:'',currentWord:'',askerOrder:[],askerIndex:0,log:[],lastActivity:0,version:0,votes:{}} }
 function genId(){ return Math.random().toString(36).slice(2,9) }
 function nowStr(){ return new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
-function isTyping(){ const el=document.activeElement; return el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA'); }
+function lc(w){ return (w||'').trim().split(' ').pop()[0]?.toLowerCase()||'' }
+function fc(w){ return (w||'').trim()[0]?.toLowerCase()||'' }
+
+function isTyping(){
+  const el=document.activeElement;
+  return el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA');
+}
 
 function setConn(ok,msg){
   document.getElementById('cdot').className='cdot '+(ok?'ok':ok===null?'mid':'bad');
-  document.getElementById('ctext').textContent=msg||(ok?'Đã kết nối · Phòng: '+ROOM:'Mất kết nối...');
+  document.getElementById('ctext').textContent=msg||(ok?'Đã kết nối · Phòng: '+ROOM:'Mất kết nối, đang thử lại...');
 }
 
+// ── API ──
 async function apiGet(){
   const r=await fetch(`${BACKEND_URL}?room=${ROOM}`,{signal:AbortSignal.timeout(6000)});
   if(!r.ok) throw new Error(r.status);
   return r.json();
 }
-async function apiPut(patch,_retries=0){
-  if(_retries>4) throw new Error('Too many conflicts');
-  const base=_retries>0?await apiGet():state;
-  const payload={...base,...patch,version:base.version};
+async function apiPut(patch, _retries=0){
+  if(_retries > 4) throw new Error('Too many conflicts');
+  // Selalu ambil versi terbaru sebelum PUT untuk hindari konflik
+  const base = _retries > 0 ? await apiGet() : state;
+  const payload={...base,...patch, version:base.version};
   const r=await fetch(`${BACKEND_URL}?room=${ROOM}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(6000)});
-  if(r.status===409){ state=await apiGet(); await new Promise(res=>setTimeout(res,100+Math.random()*200)); return apiPut(patch,_retries+1); }
+  if(r.status===409){
+    // Conflict: fetch lại và retry với delay nhỏ
+    state=await apiGet();
+    await new Promise(res=>setTimeout(res, 100 + Math.random()*200));
+    return apiPut(patch, _retries+1);
+  }
   if(!r.ok) throw new Error(r.status);
-  state=await r.json(); return state;
+  state=await r.json();
+  return state;
 }
 
+// ── Poll — KHÔNG render khi user đang gõ ──
 async function poll(){
   try{
-    const ns=await apiGet(); setConn(true);
-    const changed=ns.version!==state.version;
-    state=ns; if(!myId) return; if(!changed) return;
-    if(isTyping()) patchScores(); else render();
+    const newState=await apiGet();
+    setConn(true);
+    const changed=newState.version!==state.version;
+    state=newState;
+    if(!myId) return;
+    if(!changed) return; // không có gì mới, bỏ qua
+    if(isTyping()){
+      // Có dữ liệu mới nhưng user đang gõ:
+      // Chỉ cập nhật phần không phải input (players, chain, score, log)
+      // bằng cách patch từng element riêng thay vì render lại toàn bộ
+      patchNonInputAreas();
+    } else {
+      render();
+    }
   } catch(e){ setConn(false); }
 }
-function patchScores(){
-  for(const p of playerList()){
+
+// Cập nhật các phần không ảnh hưởng đến input đang focus
+function patchNonInputAreas(){
+  // Chỉ update score nếu có element đó (người dùng đã join)
+  const pl=players();
+  for(const p of pl){
     const el=document.getElementById('score_'+p.id);
     if(el) el.textContent=(state.players[p.id]?.score)||0;
   }
+  // Update connection dot đã được setConn() xử lý rồi
+  // Không đụng vào input → focus được giữ nguyên
 }
+
 function startPoll(){ if(pollTimer) clearInterval(pollTimer); poll(); pollTimer=setInterval(poll,POLL); }
 
-function playerList(){
+// ── Helpers ──
+function players(){
   const ord=state.askerOrder||[], ps=state.players||{}, res=[];
   for(const id of ord) if(ps[id]) res.push({id,...ps[id]});
   for(const id of Object.keys(ps)) if(!res.find(p=>p.id===id)) res.push({id,...ps[id]});
   return res;
 }
-function noter(){ const pl=playerList(); return pl.length?pl[(state.noterIndex||0)%pl.length]:null; }
-function reviewer(){ const pl=playerList(); return pl.length<2?null:pl[((state.noterIndex||0)+1)%pl.length]; }
+function asker(){ const l=players(); return l[(state.askerIndex||0)%Math.max(1,l.length)]||null }
+function guesser(){ const l=players(); return l.length<2?null:l[((state.askerIndex||0)+1)%l.length] }
 
+// ── Actions ──
 async function joinGame(name){
   myId=genId(); myName=name;
-  state=await apiGet();
-  const ps={...(state.players||{})}; ps[myId]={name,score:0};
+  const ps={...(state.players||{})}; ps[myId]={name,score:0,joinedAt:Date.now()};
   const ord=[...(state.askerOrder||[])]; if(!ord.includes(myId)) ord.push(myId);
   try{ await apiPut({players:ps,askerOrder:ord}); render(); startPoll(); }
-  catch(e){ setLocalStatus('❌ Không kết nối được.','error'); }
+  catch(e){ setLocalStatus('❌ Không kết nối được backend.','error'); }
 }
 
 async function leaveGame(){
   if(!myId) return;
   const ps={...(state.players||{})}; delete ps[myId];
   const ord=(state.askerOrder||[]).filter(id=>id!==myId);
-  let ni=state.noterIndex||0; if(ni>=ord.length&&ord.length>0) ni=0;
-  const ready={...(state.ready||{})}; delete ready[myId];
-  try{ await apiPut({players:ps,askerOrder:ord,noterIndex:ni,ready,
-    phase:ord.length<2?'lobby':state.phase,
-    pendingWord:'',pendingFrom:''}) } catch{}
+  let idx=state.askerIndex||0; if(idx>=ord.length&&ord.length>0) idx=0;
+  try{ await apiPut({players:ps,askerOrder:ord,askerIndex:idx,currentWord:'',pendingWord:'',pendingFrom:''}) } catch{}
   myId=''; myName=''; clearInterval(pollTimer);
   document.getElementById('app').innerHTML=joinHtml();
 }
 
-async function toggleReady(){
-  const fresh=await apiGet(); state=fresh;
-  const ready={...(state.ready||{})};
-  if(ready[myId]) delete ready[myId]; else ready[myId]=true;
-  const pl=playerList();
-  const allReady=pl.length>=2&&pl.every(p=>ready[p.id]);
-  if(allReady){
-    const startWord=START_WORDS[Math.floor(Math.random()*START_WORDS.length)];
-    await doAction({ready,phase:'playing',chain:[startWord],currentWord:startWord,
-      pendingWord:'',pendingFrom:'',noterIndex:0,log:[],votes:{}});
-  } else {
-    await doAction({ready});
-  }
-}
-
-async function submitAnswer(word){
-  const n=noter(); if(!n||n.id!==myId) return;
-  const trimmed=word.trim().toLowerCase();
-  const parts=trimmed.split(/\s+/);
-  if(parts.length<2){ setLocalStatus('⚠ Cần nhập đúng 2 âm tiết, vd: "chim sẻ"','error'); return; }
-  const needed=lastSyl(state.currentWord);
-  const given=firstSyl(trimmed);
-  if(given!==needed){ setLocalStatus(`⚠ Từ phải bắt đầu bằng "${needed}"!`,'error'); return; }
-  if((state.chain||[]).includes(trimmed)){ setLocalStatus('⚠ Từ này đã dùng rồi!','error'); return; }
-  await doAction({pendingWord:trimmed,pendingFrom:myId});
-}
-
-async function approveAnswer(ok){
-  const rv=reviewer(); if(!rv||rv.id!==myId) return;
-  const word=state.pendingWord; if(!word) return;
-  const n=noter();
-  const ps={...(state.players||{})};
-  let log=[...(state.log||[])];
-  if(ok){
-    const chain=[...(state.chain||[]),word];
-    if(n&&ps[n.id]) ps[n.id].score=(ps[n.id].score||0)+1;
-    log.unshift({word,by:n?n.name:'?',ok:true,time:nowStr()});
-    if(log.length>30) log=log.slice(0,30);
-    const pl=playerList();
-    const nextNoter=((state.noterIndex||0)+1)%pl.length;
-    await doAction({chain,log,players:ps,currentWord:word,pendingWord:'',pendingFrom:'',noterIndex:nextNoter});
-  } else {
-    log.unshift({word,by:n?n.name:'?',ok:false,time:nowStr()});
-    if(log.length>30) log=log.slice(0,30);
-    await doAction({pendingWord:'',pendingFrom:'',log});
-    setLocalStatus(`❌ Từ "${word}" không hợp lệ — ${n?n.name:'...'} nối lại!`,'error');
-  }
-}
-
-async function surrender(){
-  const n=noter(); if(!n||n.id!==myId) return;
-  const rv=reviewer();
-  const ps={...(state.players||{})};
-  let log=[...(state.log||[])];
-  log.unshift({word:'🏳 đầu hàng',by:n.name,ok:false,sur:true,time:nowStr()});
-  if(log.length>30) log=log.slice(0,30);
-  if(rv&&ps[rv.id]) ps[rv.id].score=(ps[rv.id].score||0)+1;
-  const pl=playerList();
-  const nextNoter=((state.noterIndex||0)+1)%pl.length;
-  await doAction({pendingWord:'',pendingFrom:'',log,players:ps,noterIndex:nextNoter});
+async function resetGame(){
+  if(!confirm('Reset? Điểm về 0.')) return;
+  const ps={};
+  for(const id of Object.keys(state.players||{})) ps[id]={...state.players[id],score:0};
+  await doAction({players:ps,chain:[],pendingWord:'',pendingFrom:'',currentWord:'',askerIndex:0,log:[],votes:{}});
 }
 
 async function voteKick(targetId){
   if(!myId||targetId===myId) return;
   const votes={...(state.votes||{})};
   const key='kick_'+targetId;
-  const ex=votes[key]||[];
-  if(ex.includes(myId)) votes[key]=ex.filter(id=>id!==myId);
-  else votes[key]=[...ex,myId];
-  const needed=Math.ceil(playerList().length/2);
+  const existing=votes[key]||[];
+  if(existing.includes(myId)){
+    // Bỏ vote
+    votes[key]=existing.filter(id=>id!==myId);
+  } else {
+    votes[key]=[...existing,myId];
+  }
+  const needed=Math.ceil((players().length)/2);
   if((votes[key]||[]).length>=needed){
+    // Đủ vote → kick
     const ps={...(state.players||{})}; delete ps[targetId];
     const ord=(state.askerOrder||[]).filter(id=>id!==targetId);
-    let ni=state.noterIndex||0; if(ni>=ord.length&&ord.length>0) ni=0;
+    let idx=state.askerIndex||0; if(idx>=ord.length&&ord.length>0) idx=0;
     delete votes[key];
-    await doAction({players:ps,askerOrder:ord,noterIndex:ni,
-      phase:ord.length<2?'lobby':state.phase,
-      pendingWord:'',pendingFrom:'',votes});
-    setLocalStatus('✅ Đã kick!','success');
-  } else { await doAction({votes}); }
+    await doAction({players:ps,askerOrder:ord,askerIndex:idx,currentWord:'',pendingWord:'',pendingFrom:'',votes});
+    setLocalStatus('✅ Đã kick thành công!','success');
+  } else {
+    await doAction({votes});
+  }
 }
 
 async function voteReset(){
   if(!myId) return;
   const votes={...(state.votes||{})};
   const key='reset';
-  const ex=votes[key]||[];
-  if(ex.includes(myId)) votes[key]=ex.filter(id=>id!==myId);
-  else votes[key]=[...ex,myId];
-  const needed=Math.ceil(playerList().length/2);
+  const existing=votes[key]||[];
+  if(existing.includes(myId)){
+    votes[key]=existing.filter(id=>id!==myId);
+  } else {
+    votes[key]=[...existing,myId];
+  }
+  const needed=Math.ceil(players().length/2);
   if((votes[key]||[]).length>=needed){
+    // Đủ vote → reset
     const ps={};
     for(const id of Object.keys(state.players||{})) ps[id]={...state.players[id],score:0};
-    await doAction({players:ps,chain:[],pendingWord:'',pendingFrom:'',currentWord:'',
-      phase:'lobby',ready:{},noterIndex:0,log:[],votes:{}});
-    setLocalStatus('✅ Đã reset phòng!','success');
+    await doAction({players:ps,chain:[],pendingWord:'',pendingFrom:'',currentWord:'',askerIndex:0,log:[],votes:{}});
+    setLocalStatus('✅ Phòng đã được reset!','success');
   } else {
     await doAction({votes});
-    setLocalStatus(`🗳 Vote reset (${(votes[key]||[]).length}/${needed})`,'info');
+    setLocalStatus(`🗳 Đã vote reset (${(votes[key]||[]).length}/${needed})`, 'info');
   }
 }
 
+async function submitWord(word){
+  const a=asker(); if(!a||a.id!==myId) return;
+  const chain=state.chain||[];
+  if(chain.length){ const n=lc(chain[chain.length-1]); if(fc(word)!==n){ setLocalStatus(`⚠ Phải bắt đầu bằng "${n.toUpperCase()}"!`,'error'); return; } }
+  if(chain.includes(word)){ setLocalStatus('⚠ Từ đã dùng rồi!','error'); return; }
+  await doAction({currentWord:word.trim().toLowerCase()});
+}
+
+async function submitAnswer(word){
+  const g=guesser(); if(!g||g.id!==myId) return;
+  if(!state.currentWord) return;
+  const n=lc(state.currentWord);
+  if(fc(word)!==n){ setLocalStatus(`⚠ Phải bắt đầu bằng "${n.toUpperCase()}"!`,'error'); return; }
+  if((state.chain||[]).includes(word)){ setLocalStatus('⚠ Từ đã dùng rồi!','error'); return; }
+  await doAction({pendingWord:word.trim().toLowerCase(),pendingFrom:myId});
+}
+
+async function approveWord(ok){
+  const a=asker(); if(!a||a.id!==myId) return;
+  const word=state.pendingWord; if(!word) return;
+  const g=guesser();
+  const ps={...(state.players||{})};
+  let chain=[...(state.chain||[])], log=[...(state.log||[])], idx=state.askerIndex||0;
+  if(ok){
+    chain.push(state.currentWord,word);
+    if(g&&ps[g.id]) ps[g.id].score=(ps[g.id].score||0)+1;
+    log.unshift({word,by:g?g.name:'?',ok:true,time:nowStr()});
+    idx=(idx+1)%Math.max(1,(state.askerOrder||[]).length);
+  } else {
+    log.unshift({word,by:g?g.name:'?',ok:false,time:nowStr()});
+  }
+  if(log.length>30) log=log.slice(0,30);
+  await doAction({chain,log,players:ps,askerIndex:idx,currentWord:'',pendingWord:'',pendingFrom:''});
+}
+
 async function doAction(patch){
-  try{ await apiPut(patch); render(); }
+  try{
+    await apiPut(patch);
+    render(); // sau action của mình thì luôn render full
+  }
   catch(e){ setLocalStatus('❌ Lỗi kết nối','error'); }
 }
 
 function setLocalStatus(msg,type){
   localStatus={msg,type}; clearTimeout(localTimer);
-  localTimer=setTimeout(()=>{localStatus=null;renderStatusOnly();},4000);
+  localTimer=setTimeout(()=>{localStatus=null;renderStatusOnly()},3500);
   renderStatusOnly();
 }
+
+// Chỉ update thanh status, không đụng input
 function renderStatusOnly(){
   const el=document.getElementById('localStatusBar');
-  if(el) el.innerHTML=localStatus?`<div class="status-bar ${localStatus.type}" style="margin-top:10px">${localStatus.msg}</div>`:'';
+  if(!el) return;
+  if(localStatus){
+    el.innerHTML=`<div class="status-bar ${localStatus.type}" style="margin-top:10px">${localStatus.msg}</div>`;
+  } else {
+    el.innerHTML='';
+  }
 }
 
+// ── Render ──
 function render(){
   if(!myId){ document.getElementById('app').innerHTML=joinHtml(); return; }
-  const pl=playerList(), n=noter(), rv=reviewer();
-  const isNoter=n&&n.id===myId, isReviewer=rv&&rv.id===myId;
-  const wait=pl.length<2, phase=state.phase||'lobby';
+  const pl=players(), a=asker(), g=guesser();
+  const isA=a&&a.id===myId, isG=g&&g.id===myId;
+  const wait=pl.length<2, chain=state.chain||[];
   let h='';
 
-  // Card người chơi
+  // Players
   h+=`<div class="card"><div class="section-label">Người chơi (${pl.length})</div><div class="players-row">`;
   for(const p of pl){
-    const me=p.id===myId, isReady=(state.ready||{})[p.id];
-    h+=`<div class="player-badge">
-      <div class="player-dot ${me?'dot-me':''}"></div>
-      <span>${esc(p.name)}${me?' (bạn)':''}</span>
-      ${phase==='lobby'?`<span class="${isReady?'ready-badge':'waiting-badge'}">${isReady?'✓ Sẵn sàng':'Chờ...'}</span>`:''}
-    </div>`;
+    const me=p.id===myId, ak=a&&a.id===p.id;
+    h+=`<div class="player-badge"><div class="player-dot ${me?'dot-me':'dot-other'}"></div><span>${esc(p.name)}${me?' (bạn)':''}</span><span class="role-tag ${ak?'role-asker':'role-guesser'}">${ak?'🎯 Hỏi':'✏️ Đáp'}</span></div>`;
   }
   if(wait) h+=`<span style="font-size:12px;color:#4b5563;font-style:italic">Chờ bạn bè vào...</span>`;
   h+=`</div>`;
-
-  // Vote buttons (khi đang chơi)
-  if(phase==='playing'&&!wait){
-    const votes=state.votes||{}, needed=Math.ceil(pl.length/2);
+  // Vote kick buttons — hiển thị cho người chơi khác
+  if(!wait){
+    const votes=state.votes||{};
+    const needed=Math.ceil(pl.length/2);
     h+=`<div class="vote-row">`;
     for(const p of pl){
       if(p.id===myId) continue;
-      const key='kick_'+p.id, cnt=(votes[key]||[]).length, iV=(votes[key]||[]).includes(myId);
-      h+=`<button class="vote-btn ${iV?'voted':''}" onclick="voteKick('${p.id}')">🚫 Kick ${esc(p.name)}${cnt>0?` (${cnt}/${needed})`:''}</button>`;
+      const key='kick_'+p.id;
+      const cnt=(votes[key]||[]).length;
+      const iVoted=(votes[key]||[]).includes(myId);
+      h+=`<button class="vote-btn ${iVoted?'voted':''}" onclick="voteKick('${p.id}')">`;
+      h+=`${iVoted?'↩ Bỏ vote kick':'🚫 Kick'} ${esc(p.name)}`;
+      if(cnt>0) h+=` (${cnt}/${needed})`;
+      h+=`</button>`;
     }
-    const rk='reset', rc=(votes[rk]||[]).length, iVR=(votes[rk]||[]).includes(myId);
-    h+=`<button class="vote-btn ${iVR?'reset-voted':''}" onclick="voteReset()">🔄 Vote reset${rc>0?` (${rc}/${needed})`:''}</button>`;
+    // Vote reset
+    const rKey='reset', rCnt=(votes[rKey]||[]).length, iVotedR=(votes[rKey]||[]).includes(myId);
+    h+=`<button class="vote-btn ${iVotedR?'reset-voted':''}" onclick="voteReset()">`;
+    h+=`${iVotedR?'↩ Bỏ vote':'🔄 Vote reset'} phòng`;
+    if(rCnt>0) h+=` (${rCnt}/${needed})`;
+    h+=`</button>`;
     h+=`</div>`;
+    if(rCnt>0||pl.some(p=>p.id!==myId&&(votes['kick_'+p.id]||[]).length>0)){
+      h+=`<div class="vote-bar"><div class="vote-fill" style="width:${Math.round(Math.max(...pl.filter(p=>p.id!==myId).map(p=>(votes['kick_'+p.id]||[]).length), rCnt, 0)/needed*100)}%;background:#a78bfa"></div></div>`;
+    }
   }
-
   if(wait) h+=`<div style="margin-top:12px;background:#12141f;border:1px dashed #2a2d3e;border-radius:10px;padding:10px 14px;font-size:12px;color:#6b7280">📎 Gửi link này cho bạn: <b style="color:#a78bfa;word-break:break-all">${esc(location.href)}</b></div>`;
   h+=`</div>`;
 
-  // LOBBY
-  if(phase==='lobby'){
-    h+=`<div class="card">`;
-    if(wait){
-      h+=`<div class="status-bar info">⏳ Cần ít nhất 2 người để bắt đầu</div>`;
-    } else {
-      const isReady=(state.ready||{})[myId];
-      h+=`<button class="${isReady?'btn-unready':'btn-ready'}" onclick="toggleReady()">${isReady?'↩ Bỏ sẵn sàng':'✋ Sẵn sàng!'}</button>`;
-      if(!pl.every(p=>(state.ready||{})[p.id]))
-        h+=`<div style="font-size:12px;color:#4b5563;margin-top:10px;text-align:center">Chờ tất cả bấm sẵn sàng...</div>`;
-    }
-    h+=`</div>`;
-    h+=`<div class="card" style="background:#12141f">
-      <div class="section-label">Cách chơi</div>
-      <div class="rules-box">
-        Game cho 1 từ 2 âm tiết. Người nối ghép từ mới: âm tiết đầu = âm tiết cuối từ trước.<br>
-        <span class="eg">Ví dụ: <span class="chip">con cá</span> → <span class="chip">cá chim</span> → <span class="chip">chim sẻ</span> → ...</span><br>
-        Người kia duyệt. Hợp lệ thì đổi lượt nối. Không hợp lệ thì nối lại.<br>
-        Bí quá thì bấm <b>Đầu hàng</b> — đối thủ được 1 điểm.
-      </div>
-    </div>`;
-  }
-
-  // PLAYING
-  if(phase==='playing'){
-    const chain=state.chain||[], cw=state.currentWord||'', ls=lastSyl(cw);
-
-    // Chuỗi từ
-    h+=`<div class="card"><div class="section-label">Chuỗi từ (${chain.length})</div><div class="chain-display">`;
-    if(!chain.length){ h+=`<span style="color:#374151;font-size:13px;font-style:italic">Chưa có từ nào...</span>`; }
+  if(!wait){
+    // Chain
+    h+=`<div class="card"><div class="section-label">Chuỗi từ (${chain.length})</div>`;
+    if(!chain.length){ h+=`<div class="chain-display"><span class="empty-chain">Chưa có từ nào...</span></div>`; }
     else {
-      const st=Math.max(0,chain.length-8);
-      if(st>0) h+=`<span style="color:#374151;font-size:11px">...${st} từ trước</span><span class="chain-arrow">→</span>`;
+      h+=`<div class="chain-display">`;
+      const st=Math.max(0,chain.length-10);
+      if(st>0) h+=`<span style="color:#374151;font-size:12px">...${st} từ trước</span><span class="chain-arrow">→</span>`;
       for(let i=st;i<chain.length;i++){
         if(i>st) h+=`<span class="chain-arrow">→</span>`;
-        h+=`<span class="chain-word ${i===0?'start':i===chain.length-1?'latest':''}">${esc(chain[i])}</span>`;
+        h+=`<span class="chain-word ${i===chain.length-1?'latest':''}">${esc(chain[i])}</span>`;
       }
+      h+=`</div>`;
     }
-    h+=`</div></div>`;
+    h+=`</div>`;
 
-    // Action card
+    // Action card — input nằm ở đây, được bảo vệ khỏi poll
     h+=`<div class="card" id="actionCard">`;
-    if(!state.pendingWord){
-      // Hiện từ cần nối
-      h+=`<div class="current-prompt">
-        <div class="prompt-label">Từ hiện tại</div>
-        <div class="prompt-word">${esc(cw.toUpperCase())}</div>
-        <div class="prompt-connect">Âm tiết cần nối: <span class="chip">${esc(ls)}</span></div>
-        <div class="prompt-hint">Nhập từ 2 âm tiết bắt đầu bằng "<b>${esc(ls)}</b> ..."</div>
-      </div>`;
-      if(isNoter){
-        h+=`<div class="input-row">
-          <input type="text" id="ansInput" placeholder="${esc(ls)} ..." autocomplete="off"/>
-          <button onclick="handleAns()">Nối →</button>
-        </div>`;
-        h+=`<div style="margin-top:10px"><button class="btn-surrender" onclick="surrender()">🏳 Đầu hàng</button></div>`;
-      } else {
-        h+=`<div class="status-bar info">⏳ Chờ <b>${n?esc(n.name):'...'}</b> nối từ...</div>`;
+    if(!state.currentWord&&isA){
+      const nc=chain.length?lc(chain[chain.length-1]).toUpperCase():'';
+      h+=`<div class="section-label">Lượt của bạn — Đưa từ để thách</div>`;
+      h+=`<div class="input-row"><input type="text" id="wordInput" placeholder="${nc?'Từ bắt đầu bằng '+nc+'...':'Nhập từ đầu tiên...'}" autocomplete="off"/><button onclick="handleWord()">Đưa từ →</button></div>`;
+      if(nc) h+=`<div style="font-size:12px;color:#4b5563;margin-top:8px">Từ cuối kết thúc bằng "<b style="color:#a78bfa">${nc}</b>", từ bạn đưa phải bắt đầu bằng chữ đó</div>`;
+    } else if(!state.currentWord&&!isA){
+      h+=`<div class="status-bar info"><span>⏳ Chờ ${a?esc(a.name):'...'} đưa từ...</span></div>`;
+    } else if(state.currentWord&&!state.pendingWord){
+      if(isG){
+        h+=`<div class="current-prompt"><div class="prompt-label">Từ cần nối</div><div class="prompt-word">${esc(state.currentWord.toUpperCase())}</div><div class="prompt-hint">Nối bằng từ bắt đầu bằng "<b>${lc(state.currentWord).toUpperCase()}</b>"</div></div>`;
+        h+=`<div class="input-row"><input type="text" id="ansInput" placeholder="Từ bắt đầu bằng ${lc(state.currentWord).toUpperCase()}..." autocomplete="off"/><button onclick="handleAns()">Gửi →</button></div>`;
+      } else if(isA){
+        h+=`<div class="current-prompt"><div class="prompt-label">Bạn đã đưa từ</div><div class="prompt-word">${esc(state.currentWord.toUpperCase())}</div><div class="prompt-hint">Chờ ${g?esc(g.name):'...'} trả lời...</div></div>`;
+        h+=`<div class="status-bar"><div class="spinner"></div><span>Đang chờ trả lời...</span></div>`;
       }
-    } else {
-      // Có từ đang chờ duyệt
-      if(isReviewer){
-        h+=`<div class="approval-box">
-          <div style="font-size:12px;color:#92400e;margin-bottom:6px">Từ nối từ <b>${n?esc(n.name):'...'}</b></div>
-          <div class="approval-word">${esc(cw.toUpperCase())} → ${esc(state.pendingWord.toUpperCase())}</div>
-          <div class="approval-sub">Từ "<b>${esc(state.pendingWord)}</b>" có hợp lệ không?</div>
-          <div class="approval-actions">
-            <button class="btn-approve" onclick="approveAnswer(true)">✓ Hợp lệ</button>
-            <button class="btn-reject" onclick="approveAnswer(false)">✗ Không hợp lệ</button>
-          </div>
-        </div>`;
+    } else if(state.pendingWord){
+      if(isA){
+        h+=`<div class="approval-box"><div style="font-size:12px;color:#92400e;margin-bottom:4px">Câu trả lời từ ${g?esc(g.name):'...'}</div><div class="approval-word">${esc(state.currentWord.toUpperCase())} → ${esc(state.pendingWord.toUpperCase())}</div><div class="approval-sub">Từ "<b>${esc(state.pendingWord)}</b>" có hợp lệ không?</div><div class="approval-actions"><button class="btn-approve" onclick="approveWord(true)">✓ Đồng ý</button><button class="btn-reject" onclick="approveWord(false)">✗ Không hợp lệ</button></div></div>`;
       } else {
-        h+=`<div class="current-prompt">
-          <div class="prompt-label">Từ bạn đã nối</div>
-          <div class="prompt-word">${esc(state.pendingWord.toUpperCase())}</div>
-        </div>`;
-        h+=`<div class="status-bar pending"><div class="spinner"></div><span>Chờ <b>${rv?esc(rv.name):'...'}</b> duyệt...</span></div>`;
+        h+=`<div class="status-bar pending"><div class="spinner"></div><span>Chờ ${a?esc(a.name):'...'} duyệt từ "<b>${esc(state.pendingWord)}</b>"...</span></div>`;
       }
     }
+    // Vùng status riêng — update độc lập, không đụng input
     h+=`<div id="localStatusBar">${localStatus?`<div class="status-bar ${localStatus.type}" style="margin-top:10px">${localStatus.msg}</div>`:''}</div>`;
     h+=`</div>`;
 
-    // Điểm
+    // Score — mỗi số có id riêng để patch không cần render lại
     h+=`<div class="card"><div class="section-label">Điểm số</div><div class="score-row">`;
     for(const p of pl) h+=`<div class="score-card"><div class="score-num" id="score_${p.id}">${(state.players[p.id]?.score)||0}</div><div class="score-lbl">${esc(p.name)}</div></div>`;
     h+=`</div></div>`;
@@ -445,40 +412,31 @@ function render(){
     const log=state.log||[];
     if(log.length){
       h+=`<div class="card"><div class="section-label">Lịch sử</div><div class="log-list">`;
-      for(const l of log) h+=`<div class="log-item">
-        <span class="log-who">${esc(l.by)}</span>
-        <span class="log-word">${esc(l.word)}</span>
-        <span class="log-badge ${l.sur?'badge-sur':l.ok?'badge-ok':'badge-no'}">${l.sur?'🏳':l.ok?'✓':'✗'}</span>
-        <span style="color:#374151;font-size:11px">${l.time}</span>
-      </div>`;
+      for(const l of log) h+=`<div class="log-item"><span class="log-who">${esc(l.by)}</span><span class="log-word">${esc(l.word)}</span><span class="log-badge ${l.ok?'badge-ok':'badge-no'}">${l.ok?'✓':'✗'}</span><span style="color:#374151;font-size:11px">${l.time}</span></div>`;
       h+=`</div></div>`;
     }
   }
 
-  h+=`<div style="text-align:center;margin-top:16px"><button class="btn-secondary" onclick="leaveGame()">🚪 Rời game</button></div>`;
+  h+=`<div style="text-align:center;margin-top:16px;display:flex;gap:8px;justify-content:center"><button class="btn-secondary" onclick="leaveGame()">🚪 Rời game</button></div>`;
   document.getElementById('app').innerHTML=h;
 }
 
 function joinHtml(){
-  return `<div class="card">
-    <div class="section-label">Nhập tên của bạn</div>
-    <div class="join-form">
-      <input type="text" id="nameInput" placeholder="Tên hiển thị..." maxlength="20" autocomplete="off"/>
-      <button onclick="handleJoin()">Vào chơi →</button>
-    </div>
-    <div style="text-align:center;font-size:13px;color:#4b5563;margin-top:14px">:^</div>
-  </div>`;
+  return `<div class="card"><div class="section-label">Nhập tên của bạn</div><div class="join-form"><input type="text" id="nameInput" placeholder="Tên hiển thị..." maxlength="20" autocomplete="off"/><button onclick="handleJoin()">Vào chơi →</button></div><div style="text-align:center;font-size:13px;color:#4b5563;margin-top:14px">:^</div></div>`;
 }
 
 function handleJoin(){ const n=document.getElementById('nameInput')?.value.trim(); if(n) joinGame(n); }
+function handleWord(){ const w=document.getElementById('wordInput')?.value.trim().toLowerCase(); if(w) submitWord(w); }
 function handleAns(){ const w=document.getElementById('ansInput')?.value.trim().toLowerCase(); if(w) submitAnswer(w); }
 
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter') return;
-  const n=document.getElementById('nameInput'), a=document.getElementById('ansInput');
+  const n=document.getElementById('nameInput'), w=document.getElementById('wordInput'), a=document.getElementById('ansInput');
   if(document.activeElement===n) handleJoin();
+  else if(document.activeElement===w) handleWord();
   else if(document.activeElement===a) handleAns();
 });
+
 
 document.getElementById('app').innerHTML=joinHtml();
 startPoll();
