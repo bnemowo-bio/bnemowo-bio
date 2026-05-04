@@ -86,9 +86,11 @@ const BACKEND_URL = 'https://noituvoiwuyenmup.baonam04012010.workers.dev/';
 const ROOM = (location.hash.replace('#','').trim()||'main').replace(/[^a-z0-9_-]/gi,'').slice(0,20)||'main';
 
 let myId='', myName='';
-let state=mkState(), localStatus=null, localTimer=null, pollTimer=null;
-let lastRenderedVersion=-1; // track version đã render để tránh render thừa
+let state=mkState(), localStatus=null, localTimer=null, pollTimer=null, heartTimer=null;
+let lastRenderedVersion=-1;
 const POLL=1300;
+const HEARTBEAT_MS=4000;  // gửi heartbeat mỗi 4 giây
+const TIMEOUT_MS=12000;   // kick nếu không gửi heartbeat trong 12 giây
 
 function mkState(){ return {players:{},chain:[],pendingWord:'',pendingFrom:'',currentWord:'',askerOrder:[],askerIndex:0,log:[],lastActivity:0,version:0} }
 function genId(){ return Math.random().toString(36).slice(2,9) }
@@ -154,6 +156,40 @@ function patchNonInputAreas(){
   // Không đụng vào input → focus được giữ nguyên
 }
 
+function startHeartbeat(){
+  if(heartTimer) clearInterval(heartTimer);
+  // Gửi heartbeat ngay và mỗi HEARTBEAT_MS
+  sendHeartbeat();
+  heartTimer=setInterval(sendHeartbeat, HEARTBEAT_MS);
+}
+
+async function sendHeartbeat(){
+  if(!myId) return;
+  try{
+    const ps={...(state.players||{})};
+    if(!ps[myId]) return;
+    ps[myId]={...ps[myId], lastSeen:Date.now()};
+    // Đồng thời dọn dẹp người chơi đã "chết"
+    const now=Date.now();
+    let changed=false;
+    const ord=[...(state.askerOrder||[])];
+    for(const id of Object.keys(ps)){
+      if(id===myId) continue;
+      const seen=ps[id].lastSeen||0;
+      if(now-seen>TIMEOUT_MS){
+        delete ps[id];
+        const i=ord.indexOf(id);
+        if(i>=0) ord.splice(i,1);
+        changed=true;
+      }
+    }
+    // Chỉ PUT nếu có người chết hoặc cần update lastSeen mình
+    let idx=state.askerIndex||0;
+    if(changed && idx>=ord.length && ord.length>0) idx=0;
+    await apiPut({players:ps, askerOrder:ord, askerIndex:idx});
+  } catch{}
+}
+
 function startPoll(){ if(pollTimer) clearInterval(pollTimer); poll(); pollTimer=setInterval(poll,POLL); }
 
 // ── Helpers ──
@@ -171,7 +207,7 @@ async function joinGame(name){
   myId=genId(); myName=name;
   const ps={...(state.players||{})}; ps[myId]={name,score:0,joinedAt:Date.now()};
   const ord=[...(state.askerOrder||[])]; if(!ord.includes(myId)) ord.push(myId);
-  try{ await apiPut({players:ps,askerOrder:ord}); render(); startPoll(); }
+  try{ await apiPut({players:ps,askerOrder:ord}); render(); startPoll(); startHeartbeat(); }
   catch(e){ setLocalStatus('❌ Không kết nối được backend.','error'); }
 }
 
@@ -181,7 +217,7 @@ async function leaveGame(){
   const ord=(state.askerOrder||[]).filter(id=>id!==myId);
   let idx=state.askerIndex||0; if(idx>=ord.length&&ord.length>0) idx=0;
   try{ await apiPut({players:ps,askerOrder:ord,askerIndex:idx,currentWord:'',pendingWord:'',pendingFrom:''}) } catch{}
-  myId=''; myName=''; clearInterval(pollTimer);
+  myId=''; myName=''; clearInterval(pollTimer); clearInterval(heartTimer);
   document.getElementById('app').innerHTML=joinHtml();
 }
 
@@ -334,7 +370,7 @@ function render(){
 }
 
 function joinHtml(){
-  return `<div class="card"><div class="section-label">Nhập tên của bạn</div><div class="join-form"><input type="text" id="nameInput" placeholder="Tên hiển thị..." maxlength="20" autocomplete="off"/><button onclick="handleJoin()">Vào chơi →</button></div><div style="text-align:center;font-size:13px;color:#4b5563;margin-top:14px">Wuyen siu mup siu cute :^hihi</div></div>`;
+  return `<div class="card"><div class="section-label">Nhập tên của bạn</div><div class="join-form"><input type="text" id="nameInput" placeholder="Tên hiển thị..." maxlength="20" autocomplete="off"/><button onclick="handleJoin()">Vào chơi →</button></div><div style="text-align:center;font-size:13px;color:#4b5563;margin-top:14px">:^</div></div>`;
 }
 
 function handleJoin(){ const n=document.getElementById('nameInput')?.value.trim(); if(n) joinGame(n); }
