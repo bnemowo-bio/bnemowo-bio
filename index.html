@@ -81,7 +81,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
 <body>
 <div class="container">
   <h1>🔗 Nối Từ</h1>
-  <p class="subtitle">Wuyen siu mup siu cute :^hihi</p>
+  <p class="subtitle">Wuyen beo siu mup siu cute :^hihi</p>
   <div style="text-align:center;font-size:12px;color:#4b5563;margin-bottom:14px">
     <span class="cdot mid" id="cdot"></span><span id="ctext">Đang kết nối...</span>
   </div>
@@ -208,27 +208,26 @@ async function resetGame(){
 
 async function voteKick(targetId){
   if(!myId||targetId===myId) return;
+
+  // kick luôn, không cần vote
+  const ps={...(state.players||{})}; delete ps[targetId];
+  const ord=(state.askerOrder||[]).filter(id=>id!==targetId);
+  let idx=state.askerIndex||0; if(idx>=ord.length&&ord.length>0) idx=0;
+
   const votes={...(state.votes||{})};
-  const key='kick_'+targetId;
-  const existing=votes[key]||[];
-  if(existing.includes(myId)){
-    // Bỏ vote
-    votes[key]=existing.filter(id=>id!==myId);
-  } else {
-    votes[key]=[...existing,myId];
-  }
-  const needed=Math.ceil((players().length)/2);
-  if((votes[key]||[]).length>=needed){
-    // Đủ vote → kick
-    const ps={...(state.players||{})}; delete ps[targetId];
-    const ord=(state.askerOrder||[]).filter(id=>id!==targetId);
-    let idx=state.askerIndex||0; if(idx>=ord.length&&ord.length>0) idx=0;
-    delete votes[key];
-    await doAction({players:ps,askerOrder:ord,askerIndex:idx,currentWord:'',pendingWord:'',pendingFrom:'',votes});
-    setLocalStatus('✅ Đã kick thành công!','success');
-  } else {
-    await doAction({votes});
-  }
+  delete votes['kick_'+targetId];
+
+  await doAction({
+    players:ps,
+    askerOrder:ord,
+    askerIndex:idx,
+    currentWord:'',
+    pendingWord:'',
+    pendingFrom:'',
+    votes
+  });
+
+  setLocalStatus('🚫 Đã kick','success');
 }
 
 async function voteReset(){
@@ -251,7 +250,7 @@ async function voteReset(){
     votes:{}
   });
 
-  setLocalStatus('🔄 Đã reset phòng','success');
+  setLocalStatus('🔄 Đã reset game','success');
 }
 
 async function submitWord(word){
@@ -422,7 +421,7 @@ function render(){
 }
 
 function joinHtml(){
-  return `<div class="card"><div class="section-label">Nhập tên của bạn</div><div class="join-form"><input type="text" id="nameInput" placeholder="Tên hiển thị..." maxlength="20" autocomplete="off"/><button onclick="handleJoin()">Vào chơi →</button></div><div style="text-align:center;font-size:13px;color:#4b5563;margin-top:14px">:^</div></div>`;
+  return `<div class="card"><div class="section-label">Nhập tên của bạn</div><div class="join-form"><input type="text" id="nameInput" placeholder="Tên hiển thị..." maxlength="20" autocomplete="off"/><button onclick="handleJoin()">Vào chơi →</button></div><div style="text-align:center;font-size:13px;color:#4b5563;margin-top:14px">Wuyen beo siu mup siu cute :^hihi</div></div>`;
 }
 
 function handleJoin(){ const n=document.getElementById('nameInput')?.value.trim(); if(n) joinGame(n); }
