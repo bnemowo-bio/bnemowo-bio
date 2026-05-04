@@ -168,29 +168,6 @@ function patchNonInputAreas(){
   // Không đụng vào input → focus được giữ nguyên
 }
 
-    let idx = fresh.askerIndex || 0;
-    if(changed && idx >= ord.length && ord.length > 0) idx = 0;
-
-    // PUT với version của fresh state (không dùng state local cũ)
-    const payload = {...fresh, players: fresh.players, askerOrder: ord, askerIndex: idx};
-    const r = await fetch(`${BACKEND_URL}?room=${ROOM}`, {
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(6000)
-    });
-    if(r.ok) state = await r.json();
-    if(myId && !state.players[myId]) {
-      // Mình bị kick bởi người khác
-      myId=''; myName=''; clearInterval(pollTimer);
-      document.getElementById('app').innerHTML=joinHtml();
-      setConn(false,'Bạn đã bị kick khỏi phòng');
-      return;
-    }
-    if(changed) render();
-  } catch{}
-}
-
 function startPoll(){ if(pollTimer) clearInterval(pollTimer); poll(); pollTimer=setInterval(poll,POLL); }
 
 // ── Helpers ──
